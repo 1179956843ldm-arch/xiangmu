@@ -27,6 +27,10 @@ def get_embeddings():
 def get_vs():                           #创建并返回向量存储实例
     return get_vectorstore(get_embeddings())
 
+def batch_chunks(lst, batch_size):
+    for i in range(0, len(lst), batch_size):
+        yield lst[i:i + batch_size]
+
 
 if __name__ == "__main__":
     print("------------")

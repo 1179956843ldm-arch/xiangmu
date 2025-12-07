@@ -8,7 +8,7 @@ from app.ingestion.loader import load_single_file, split_with_visibility, load_d
 from workflows.config import settings
 import chromadb
 from app.ingestion.loader import load_single_file, split_with_visibility
-from workflows.deps import get_vs,get_embeddings
+from workflows.deps import get_vs, get_embeddings, batch_chunks
 from workflows.router_graph import router_graph
 
 app = FastAPI(title="Enterprise KB Assistant")
@@ -52,7 +52,8 @@ async def ingest(file:UploadFile = File(...),
         raise HTTPException(status_code=400, detail=f"Unsupported or empty file type: {suffix}")
     chunks = split_with_visibility(docs, visibility=visibility, doc_id=doc_id)
     vs = get_vs()
-    vs.add_documents(chunks)
+    for chunk in batch_chunks(docs, 64):
+        vs.add_documents(chunk)
 
 
     return {"saved_as":str(save_path),
@@ -83,6 +84,10 @@ def reindex(visibility_default: str = Form("public")):
     vs.add_documents(chunks)
 
     return {"docs": len(raw_docs), "chunks": len(chunks), "visibility_default": visibility_default}
+@app.get("/")
+def root():
+    return {"status": "ok", "docs": "/docs"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8002,reload=True)
