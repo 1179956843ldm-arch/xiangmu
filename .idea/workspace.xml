@@ -5,15 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="项目初建">
+      <change afterPath="$PROJECT_DIR$/workflows/leave/leave_graph.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/workflows/leave/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/workflows/leave/rules.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/deps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ingestion/build_index.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/ingestion/build_index.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ingestion/loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/ingestion/loader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/rag/qa_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/rag/qa_graph.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/rag/vectorstore.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/rag/vectorstore.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/router_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/router_graph.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows/router_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/router_graph.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,13 +50,16 @@
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;Python.config.executor&quot;: &quot;Run&quot;,
     &quot;Python.deps.executor&quot;: &quot;Run&quot;,
+    &quot;Python.leave_graph.executor&quot;: &quot;Run&quot;,
     &quot;Python.loader.executor&quot;: &quot;Run&quot;,
     &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.models.executor&quot;: &quot;Run&quot;,
+    &quot;Python.rules.executor&quot;: &quot;Run&quot;,
     &quot;Python.vectorstore.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;v1&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;v2&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -95,6 +95,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JavaScript 调试.index.html" />
         <item itemvalue="JavaScript 调试.index.html" />
         <item itemvalue="JavaScript 调试.index.html" />
         <item itemvalue="JavaScript 调试.index.html" />
@@ -135,6 +136,8 @@
       <workItem from="1764981487844" duration="571000" />
       <workItem from="1764984003035" duration="887000" />
       <workItem from="1765000315800" duration="8717000" />
+      <workItem from="1765200664387" duration="454000" />
+      <workItem from="1765240431499" duration="783000" />
     </task>
     <task id="LOCAL-00001" summary="项目初建">
       <option name="closed" value="true" />
@@ -174,10 +177,13 @@
     <option name="LAST_COMMIT_MESSAGE" value="项目初建" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$models.coverage" NAME="models 覆盖结果" MODIFIED="1765162030264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$vectorstore.coverage" NAME="vectorstore 覆盖结果" MODIFIED="1764470343190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/rag" />
-    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1764821484525" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$rules.coverage" NAME="rules 覆盖结果" MODIFIED="1765162039187" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1765200997630" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$config.coverage" NAME="config 覆盖结果" MODIFIED="1764470348410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$deps.coverage" NAME="deps 覆盖结果" MODIFIED="1764560398365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$loader.coverage" NAME="loader 覆盖结果" MODIFIED="1764477188501" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/ingestion" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$leave_graph.coverage" NAME="leave_graph 覆盖结果" MODIFIED="1765162024089" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
   </component>
 </project>

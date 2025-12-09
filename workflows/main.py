@@ -14,19 +14,36 @@ from workflows.router_graph import router_graph
 app = FastAPI(title="Enterprise KB Assistant")
 DATA_DOCS_DIR = Path("../data/docs")
 DATA_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+SESSIONS: dict[str, dict] = {}
 
 class ChatReq(BaseModel):
     text: str
     user_role: str = "public"
     requester: str = "anonymous"
-
+    mode:Optional[str] =None
+    session_id:Optional[str] = None
 class ChatResp(BaseModel):
     answer: str
 
 @app.post("/chat", response_model=ChatResp)
 def chat(req: ChatReq):
-    out = router_graph.invoke(req.model_dump())
+    payload = req.model_dump()
+    sid = payload.get("session_id")
+
+    if sid and sid in SESSIONS:
+        prev = SESSIONS[sid]
+        merged = {**prev, **payload}
+        merged["text"] = payload.get("text")
+        payload = merged
+
+    out = router_graph.invoke(payload)
+
+    if sid:
+        SESSIONS[sid] = {**payload, **out}
+
     return {"answer": out["answer"]}
+
+
 @app.post("/ingest")
 async def ingest(file:UploadFile = File(...),
                  visibility: str = Form("public"),
