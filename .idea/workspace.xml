@@ -4,13 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="项目初建">
-      <change afterPath="$PROJECT_DIR$/workflows/leave/leave_graph.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/workflows/leave/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/workflows/leave/rules.py" afterDir="false" />
+    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="1. 识别是“请假业务”而不是普通问答&#10;2. 抽取必要槽位（leave_type / start / end / duration / reason）&#10;3. 按制度做规则校验（额度、提前天数、病假证明、最短单位…）&#10;4. 缺字段就追问补齐（多轮）&#10;5. 创建请假申请单（mock / 或对接真实HR系统）&#10;6. 返回结果 + 可查询状态">
+      <change afterPath="$PROJECT_DIR$/app/db/hr_mysql.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/prompts/hr_prompts.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/prompts/parse_date_prompts.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/tools/leave_tools.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/rag/prompts.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/prompts/qa_prompts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/rag/qa_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/rag/qa_graph.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows/leave/leave_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/leave/leave_graph.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workflows/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workflows/router_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/router_graph.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,7 +33,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="v1" />
+        <entry key="$PROJECT_DIR$" value="v2" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -48,6 +51,8 @@
     &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
     &quot;JavaScript 调试.index.html.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.1.executor&quot;: &quot;Run&quot;,
+    &quot;Python.2.executor&quot;: &quot;Run&quot;,
     &quot;Python.config.executor&quot;: &quot;Run&quot;,
     &quot;Python.deps.executor&quot;: &quot;Run&quot;,
     &quot;Python.leave_graph.executor&quot;: &quot;Run&quot;,
@@ -59,7 +64,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;v2&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;v3&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -86,6 +91,8 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app" />
+      <recent name="$PROJECT_DIR$/app/prompts" />
       <recent name="$PROJECT_DIR$/workflows" />
     </key>
   </component>
@@ -95,6 +102,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JavaScript 调试.index.html" />
         <item itemvalue="JavaScript 调试.index.html" />
         <item itemvalue="JavaScript 调试.index.html" />
         <item itemvalue="JavaScript 调试.index.html" />
@@ -137,7 +145,11 @@
       <workItem from="1764984003035" duration="887000" />
       <workItem from="1765000315800" duration="8717000" />
       <workItem from="1765200664387" duration="454000" />
-      <workItem from="1765240431499" duration="783000" />
+      <workItem from="1765240431499" duration="1837000" />
+      <workItem from="1765244148744" duration="12107000" />
+      <workItem from="1765267005460" duration="1157000" />
+      <workItem from="1765268448608" duration="974000" />
+      <workItem from="1765276563793" duration="2211000" />
     </task>
     <task id="LOCAL-00001" summary="项目初建">
       <option name="closed" value="true" />
@@ -155,7 +167,23 @@
       <option name="project" value="LOCAL" />
       <updated>1764643043952</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="v2">
+      <option name="closed" value="true" />
+      <created>1765243009104</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1765243009104</updated>
+    </task>
+    <task id="LOCAL-00004" summary="1. 识别是“请假业务”而不是普通问答&#10;2. 抽取必要槽位（leave_type / start / end / duration / reason）&#10;3. 按制度做规则校验（额度、提前天数、病假证明、最短单位…）&#10;4. 缺字段就追问补齐（多轮）&#10;5. 创建请假申请单（mock / 或对接真实HR系统）&#10;6. 返回结果 + 可查询状态">
+      <option name="closed" value="true" />
+      <created>1765243231257</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1765243231257</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -174,16 +202,20 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="项目初建" />
-    <option name="LAST_COMMIT_MESSAGE" value="项目初建" />
+    <MESSAGE value="v2" />
+    <MESSAGE value="1. 识别是“请假业务”而不是普通问答&#10;2. 抽取必要槽位（leave_type / start / end / duration / reason）&#10;3. 按制度做规则校验（额度、提前天数、病假证明、最短单位…）&#10;4. 缺字段就追问补齐（多轮）&#10;5. 创建请假申请单（mock / 或对接真实HR系统）&#10;6. 返回结果 + 可查询状态" />
+    <option name="LAST_COMMIT_MESSAGE" value="1. 识别是“请假业务”而不是普通问答&#10;2. 抽取必要槽位（leave_type / start / end / duration / reason）&#10;3. 按制度做规则校验（额度、提前天数、病假证明、最短单位…）&#10;4. 缺字段就追问补齐（多轮）&#10;5. 创建请假申请单（mock / 或对接真实HR系统）&#10;6. 返回结果 + 可查询状态" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$models.coverage" NAME="models 覆盖结果" MODIFIED="1765162030264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$vectorstore.coverage" NAME="vectorstore 覆盖结果" MODIFIED="1764470343190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/rag" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$rules.coverage" NAME="rules 覆盖结果" MODIFIED="1765162039187" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
-    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1765200997630" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$1.coverage" NAME="1 覆盖结果" MODIFIED="1765278688301" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1765277729152" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$config.coverage" NAME="config 覆盖结果" MODIFIED="1764470348410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$deps.coverage" NAME="deps 覆盖结果" MODIFIED="1764560398365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$loader.coverage" NAME="loader 覆盖结果" MODIFIED="1764477188501" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/ingestion" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$2.coverage" NAME="2 覆盖结果" MODIFIED="1765248644008" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$leave_graph.coverage" NAME="leave_graph 覆盖结果" MODIFIED="1765162024089" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
   </component>
 </project>
