@@ -5,14 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="1. 识别是“请假业务”而不是普通问答&#10;2. 抽取必要槽位（leave_type / start / end / duration / reason）&#10;3. 按制度做规则校验（额度、提前天数、病假证明、最短单位…）&#10;4. 缺字段就追问补齐（多轮）&#10;5. 创建请假申请单（mock / 或对接真实HR系统）&#10;6. 返回结果 + 可查询状态">
-      <change afterPath="$PROJECT_DIR$/app/db/hr_mysql.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/prompts/hr_prompts.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/prompts/parse_date_prompts.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/tools/leave_tools.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/db/redis_session.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/rag/prompts.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/prompts/qa_prompts.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/rag/qa_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/rag/qa_graph.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workflows/leave/leave_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/leave/leave_graph.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workflows/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -33,10 +27,13 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="v2" />
+        <entry key="$PROJECT_DIR$" value="v3" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="8066aec8-a68c-4e10-b748-09095639cb34" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
@@ -46,45 +43,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;JavaScript 调试.index.html.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.1.executor&quot;: &quot;Run&quot;,
-    &quot;Python.2.executor&quot;: &quot;Run&quot;,
-    &quot;Python.config.executor&quot;: &quot;Run&quot;,
-    &quot;Python.deps.executor&quot;: &quot;Run&quot;,
-    &quot;Python.leave_graph.executor&quot;: &quot;Run&quot;,
-    &quot;Python.loader.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.models.executor&quot;: &quot;Run&quot;,
-    &quot;Python.rules.executor&quot;: &quot;Run&quot;,
-    &quot;Python.vectorstore.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;v3&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "JavaScript 调试.index.html.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.1.executor": "Run",
+    "Python.2.executor": "Run",
+    "Python.config.executor": "Run",
+    "Python.deps.executor": "Run",
+    "Python.leave_graph.executor": "Run",
+    "Python.loader.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.models.executor": "Run",
+    "Python.redis_session.executor": "Run",
+    "Python.rules.executor": "Run",
+    "Python.vectorstore.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "v4",
+    "last_opened_file_path": "/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;ChangesTree.GroupingKeys&quot;: [
-      &quot;directory&quot;,
-      &quot;repository&quot;
+  "keyToStringList": {
+    "ChangesTree.GroupingKeys": [
+      "directory",
+      "repository"
     ],
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+    "DatabaseDriversLRU": [
+      "redis",
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/data/docs" />
@@ -150,6 +149,7 @@
       <workItem from="1765267005460" duration="1157000" />
       <workItem from="1765268448608" duration="974000" />
       <workItem from="1765276563793" duration="2211000" />
+      <workItem from="1765617775467" duration="4313000" />
     </task>
     <task id="LOCAL-00001" summary="项目初建">
       <option name="closed" value="true" />
@@ -211,7 +211,8 @@
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$vectorstore.coverage" NAME="vectorstore 覆盖结果" MODIFIED="1764470343190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/rag" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$rules.coverage" NAME="rules 覆盖结果" MODIFIED="1765162039187" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$1.coverage" NAME="1 覆盖结果" MODIFIED="1765278688301" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
-    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1765277729152" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$redis_session.coverage" NAME="redis_session 覆盖结果" MODIFIED="1765619111394" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/db" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1765620765451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$config.coverage" NAME="config 覆盖结果" MODIFIED="1764470348410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$deps.coverage" NAME="deps 覆盖结果" MODIFIED="1764560398365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$loader.coverage" NAME="loader 覆盖结果" MODIFIED="1764477188501" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/ingestion" />
