@@ -1,0 +1,268 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"b8e1046d-3347-4449-ba67-93b59034764d\" name=\"更改\" comment=\"项目初建\">\n      <change afterPath=\"$PROJECT_DIR$/app/config.py\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/deps.py\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/ingestion/build_index.py\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/ingestion/loader.py\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/main.py\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/rag/prompts.py\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/rag/qa_graph.py\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/rag/vectorstore.py\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/router_graph.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"JavaScript File\" />\n        <option value=\"CSS File\" />\n        <option value=\"HTML File\" />\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;associatedIndex&quot;: 6\n}</component>\n  <component name=\"ProjectId\" id=\"35u7o2s8naYZo8lqzAKowSlV6yj\" />\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\"><![CDATA[{\n  \"keyToString\": {\n    \"DefaultHtmlFileTemplate\": \"HTML File\",\n    \"JavaScript 调试.index.html.executor\": \"Run\",\n    \"ModuleVcsDetector.initialDetectionPerformed\": \"true\",\n    \"Python.config.executor\": \"Run\",\n    \"Python.deps.executor\": \"Run\",\n    \"Python.loader.executor\": \"Run\",\n    \"Python.main.executor\": \"Run\",\n    \"Python.vectorstore.executor\": \"Run\",\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\n    \"RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252\": \"true\",\n    \"RunOnceActivity.git.unshallow\": \"true\",\n    \"git-widget-placeholder\": \"master\",\n    \"last_opened_file_path\": \"/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs\",\n    \"list.type.of.created.stylesheet\": \"CSS\",\n    \"node.js.detected.package.eslint\": \"true\",\n    \"node.js.detected.package.tslint\": \"true\",\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\n    \"nodejs_package_manager_path\": \"npm\",\n    \"settings.editor.selected.configurable\": \"preferences.pluginManager\",\n    \"vue.rearranger.settings.migration\": \"true\"\n  },\n  \"keyToStringList\": {\n    \"DatabaseDriversLRU\": [\n      \"mysql\"\n    ]\n  }\n}]]></component>\n  <component name=\"RecentsManager\">\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/data/docs\" />\n      <recent name=\"$PROJECT_DIR$\" />\n    </key>\n  </component>\n  <component name=\"RunManager\">\n    <configuration name=\"index.html\" type=\"JavascriptDebugType\" temporary=\"true\" nameIsGenerated=\"true\" uri=\"http://localhost:63342/enterprise-kb-assistant/hello/index.html\" useBuiltInWebServerPort=\"true\">\n      <method v=\"2\" />\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"JavaScript 调试.index.html\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SharedIndexes\">\n    <attachedChunks>\n      <set>\n        <option value=\"bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PY-252.27397.106\" />\n        <option value=\"bundled-python-sdk-4e2b1448bda8-9a97661f3031-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.27397.106\" />\n      </set>\n    </attachedChunks>\n  </component>\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"默认任务\">\n      <changelist id=\"b8e1046d-3347-4449-ba67-93b59034764d\" name=\"更改\" comment=\"\" />\n      <created>1763948273561</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1763948273561</updated>\n      <workItem from=\"1763973053120\" duration=\"451000\" />\n      <workItem from=\"1763973577983\" duration=\"736000\" />\n      <workItem from=\"1764070041902\" duration=\"18000\" />\n      <workItem from=\"1764380815849\" duration=\"6069000\" />\n      <workItem from=\"1764388170887\" duration=\"2917000\" />\n      <workItem from=\"1764462710188\" duration=\"2748000\" />\n      <workItem from=\"1764468043115\" duration=\"2821000\" />\n      <workItem from=\"1764471603934\" duration=\"4615000\" />\n      <workItem from=\"1764558135746\" duration=\"3416000\" />\n      <workItem from=\"1764561682887\" duration=\"661000\" />\n      <workItem from=\"1764587830872\" duration=\"2024000\" />\n      <workItem from=\"1764596044587\" duration=\"80000\" />\n      <workItem from=\"1764638533469\" duration=\"3998000\" />\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"项目初建\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1764462819655</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1764462819655</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"2\" />\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <MESSAGE value=\"项目初建\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"项目初建\" />\n  </component>\n  <component name=\"com.intellij.coverage.CoverageDataManagerImpl\">\n    <SUITE FILE_PATH=\"coverage/enterprise_kb_assistant$vectorstore.coverage\" NAME=\"vectorstore 覆盖结果\" MODIFIED=\"1764470343190\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"false\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/app/rag\" />\n    <SUITE FILE_PATH=\"coverage/enterprise_kb_assistant$main.coverage\" NAME=\"main 覆盖结果\" MODIFIED=\"1764642181750\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"false\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/app\" />\n    <SUITE FILE_PATH=\"coverage/enterprise_kb_assistant$config.coverage\" NAME=\"config 覆盖结果\" MODIFIED=\"1764470348410\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"false\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/app\" />\n    <SUITE FILE_PATH=\"coverage/enterprise_kb_assistant$deps.coverage\" NAME=\"deps 覆盖结果\" MODIFIED=\"1764560398365\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"false\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/app\" />\n    <SUITE FILE_PATH=\"coverage/enterprise_kb_assistant$loader.coverage\" NAME=\"loader 覆盖结果\" MODIFIED=\"1764477188501\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"false\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/app/ingestion\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision be213df358108ac3943112322698be078c3d513d)
++++ b/.idea/workspace.xml	(date 1765730158068)
+@@ -4,17 +4,10 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="项目初建">
+-      <change afterPath="$PROJECT_DIR$/app/config.py" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/deps.py" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/ingestion/build_index.py" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/ingestion/loader.py" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/rag/prompts.py" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/rag/qa_graph.py" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/rag/vectorstore.py" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/router_graph.py" afterDir="false" />
++    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="v5列出最近N条请假, 修改待审批请假,biru改期改类型">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/db/hr_mysql.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/hr_mysql.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/workflows/leave/leave_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/leave/leave_graph.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -32,8 +25,29 @@
+     </option>
+   </component>
+   <component name="Git.Settings">
++    <favorite-branches>
++      <branch-storage>
++        <map>
++          <entry type="LOCAL">
++            <value>
++              <list>
++                <branch-info repo="$PROJECT_DIR$" source="v4" />
++              </list>
++            </value>
++          </entry>
++        </map>
++      </branch-storage>
++    </favorite-branches>
++    <option name="RECENT_BRANCH_BY_REPOSITORY">
++      <map>
++        <entry key="$PROJECT_DIR$" value="v5" />
++      </map>
++    </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
++  <component name="GithubDefaultAccount">
++    <option name="defaultAccountId" value="8066aec8-a68c-4e10-b748-09095639cb34" />
++  </component>
+   <component name="ProjectColorInfo">{
+   &quot;associatedIndex&quot;: 6
+ }</component>
+@@ -42,41 +56,57 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "DefaultHtmlFileTemplate": "HTML File",
+-    "JavaScript 调试.index.html.executor": "Run",
+-    "ModuleVcsDetector.initialDetectionPerformed": "true",
+-    "Python.config.executor": "Run",
+-    "Python.deps.executor": "Run",
+-    "Python.loader.executor": "Run",
+-    "Python.main.executor": "Run",
+-    "Python.vectorstore.executor": "Run",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+-    "RunOnceActivity.git.unshallow": "true",
+-    "git-widget-placeholder": "master",
+-    "last_opened_file_path": "/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs",
+-    "list.type.of.created.stylesheet": "CSS",
+-    "node.js.detected.package.eslint": "true",
+-    "node.js.detected.package.tslint": "true",
+-    "node.js.selected.package.eslint": "(autodetect)",
+-    "node.js.selected.package.tslint": "(autodetect)",
+-    "nodejs_package_manager_path": "npm",
+-    "settings.editor.selected.configurable": "preferences.pluginManager",
+-    "vue.rearranger.settings.migration": "true"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
++    &quot;JavaScript 调试.index.html.executor&quot;: &quot;Run&quot;,
++    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
++    &quot;Python.1.executor&quot;: &quot;Run&quot;,
++    &quot;Python.2.executor&quot;: &quot;Run&quot;,
++    &quot;Python.config.executor&quot;: &quot;Run&quot;,
++    &quot;Python.deps.executor&quot;: &quot;Run&quot;,
++    &quot;Python.leave_graph.executor&quot;: &quot;Run&quot;,
++    &quot;Python.loader.executor&quot;: &quot;Run&quot;,
++    &quot;Python.main.executor&quot;: &quot;Run&quot;,
++    &quot;Python.models.executor&quot;: &quot;Run&quot;,
++    &quot;Python.redis_session.executor&quot;: &quot;Run&quot;,
++    &quot;Python.rules.executor&quot;: &quot;Run&quot;,
++    &quot;Python.vectorstore.executor&quot;: &quot;Run&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;v6&quot;,
++    &quot;last_opened_file_path&quot;: &quot;/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs&quot;,
++    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
++    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
++    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
++    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
++    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
++    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;,
++    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+   },
+-  "keyToStringList": {
+-    "DatabaseDriversLRU": [
+-      "mysql"
++  &quot;keyToStringList&quot;: {
++    &quot;ChangesTree.GroupingKeys&quot;: [
++      &quot;directory&quot;,
++      &quot;repository&quot;
++    ],
++    &quot;DatabaseDriversLRU&quot;: [
++      &quot;redis&quot;,
++      &quot;mysql&quot;
+     ]
+   }
+-}]]></component>
++}</component>
+   <component name="RecentsManager">
+     <key name="CopyFile.RECENT_KEYS">
+       <recent name="$PROJECT_DIR$/data/docs" />
+       <recent name="$PROJECT_DIR$" />
+     </key>
++    <key name="MoveFile.RECENT_KEYS">
++      <recent name="$PROJECT_DIR$/app" />
++      <recent name="$PROJECT_DIR$/app/prompts" />
++      <recent name="$PROJECT_DIR$/workflows" />
++    </key>
+   </component>
+   <component name="RunManager">
+     <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/enterprise-kb-assistant/hello/index.html" useBuiltInWebServerPort="true">
+@@ -84,6 +114,10 @@
+     </configuration>
+     <recent_temporary>
+       <list>
++        <item itemvalue="JavaScript 调试.index.html" />
++        <item itemvalue="JavaScript 调试.index.html" />
++        <item itemvalue="JavaScript 调试.index.html" />
++        <item itemvalue="JavaScript 调试.index.html" />
+         <item itemvalue="JavaScript 调试.index.html" />
+       </list>
+     </recent_temporary>
+@@ -115,7 +149,22 @@
+       <workItem from="1764561682887" duration="661000" />
+       <workItem from="1764587830872" duration="2024000" />
+       <workItem from="1764596044587" duration="80000" />
+-      <workItem from="1764638533469" duration="3998000" />
++      <workItem from="1764638533469" duration="7730000" />
++      <workItem from="1764647280747" duration="2782000" />
++      <workItem from="1764935890656" duration="1343000" />
++      <workItem from="1764938636513" duration="2370000" />
++      <workItem from="1764981487844" duration="571000" />
++      <workItem from="1764984003035" duration="887000" />
++      <workItem from="1765000315800" duration="8717000" />
++      <workItem from="1765200664387" duration="454000" />
++      <workItem from="1765240431499" duration="1837000" />
++      <workItem from="1765244148744" duration="12107000" />
++      <workItem from="1765267005460" duration="1157000" />
++      <workItem from="1765268448608" duration="974000" />
++      <workItem from="1765276563793" duration="2211000" />
++      <workItem from="1765617775467" duration="4313000" />
++      <workItem from="1765622975793" duration="7950000" />
++      <workItem from="1765723738559" duration="2135000" />
+     </task>
+     <task id="LOCAL-00001" summary="项目初建">
+       <option name="closed" value="true" />
+@@ -125,21 +174,82 @@
+       <option name="project" value="LOCAL" />
+       <updated>1764462819655</updated>
+     </task>
+-    <option name="localTasksCounter" value="2" />
++    <task id="LOCAL-00002" summary="项目初建">
++      <option name="closed" value="true" />
++      <created>1764643043951</created>
++      <option name="number" value="00002" />
++      <option name="presentableId" value="LOCAL-00002" />
++      <option name="project" value="LOCAL" />
++      <updated>1764643043952</updated>
++    </task>
++    <task id="LOCAL-00003" summary="v2">
++      <option name="closed" value="true" />
++      <created>1765243009104</created>
++      <option name="number" value="00003" />
++      <option name="presentableId" value="LOCAL-00003" />
++      <option name="project" value="LOCAL" />
++      <updated>1765243009104</updated>
++    </task>
++    <task id="LOCAL-00004" summary="1. 识别是“请假业务”而不是普通问答&#10;2. 抽取必要槽位（leave_type / start / end / duration / reason）&#10;3. 按制度做规则校验（额度、提前天数、病假证明、最短单位…）&#10;4. 缺字段就追问补齐（多轮）&#10;5. 创建请假申请单（mock / 或对接真实HR系统）&#10;6. 返回结果 + 可查询状态">
++      <option name="closed" value="true" />
++      <created>1765243231257</created>
++      <option name="number" value="00004" />
++      <option name="presentableId" value="LOCAL-00004" />
++      <option name="project" value="LOCAL" />
++      <updated>1765243231257</updated>
++    </task>
++    <task id="LOCAL-00005" summary="v4&#10;把会话/状态持久化到Redis替换内存SESSIONS">
++      <option name="closed" value="true" />
++      <created>1765623260303</created>
++      <option name="number" value="00005" />
++      <option name="presentableId" value="LOCAL-00005" />
++      <option name="project" value="LOCAL" />
++      <updated>1765623260303</updated>
++    </task>
++    <task id="LOCAL-00006" summary="v5列出最近N条请假, 修改待审批请假,biru改期改类型">
++      <option name="closed" value="true" />
++      <created>1765636550485</created>
++      <option name="number" value="00006" />
++      <option name="presentableId" value="LOCAL-00006" />
++      <option name="project" value="LOCAL" />
++      <updated>1765636550485</updated>
++    </task>
++    <option name="localTasksCounter" value="7" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+     <option name="version" value="3" />
+   </component>
++  <component name="Vcs.Log.Tabs.Properties">
++    <option name="TAB_STATES">
++      <map>
++        <entry key="MAIN">
++          <value>
++            <State />
++          </value>
++        </entry>
++      </map>
++    </option>
++  </component>
+   <component name="VcsManagerConfiguration">
+     <MESSAGE value="项目初建" />
+-    <option name="LAST_COMMIT_MESSAGE" value="项目初建" />
++    <MESSAGE value="v2" />
++    <MESSAGE value="1. 识别是“请假业务”而不是普通问答&#10;2. 抽取必要槽位（leave_type / start / end / duration / reason）&#10;3. 按制度做规则校验（额度、提前天数、病假证明、最短单位…）&#10;4. 缺字段就追问补齐（多轮）&#10;5. 创建请假申请单（mock / 或对接真实HR系统）&#10;6. 返回结果 + 可查询状态" />
++    <MESSAGE value="v4&#10;把会话/状态持久化到Redis替换内存SESSIONS" />
++    <MESSAGE value="v5列出最近N条请假, 修改待审批请假,biru改期改类型" />
++    <option name="LAST_COMMIT_MESSAGE" value="v5列出最近N条请假, 修改待审批请假,biru改期改类型" />
+   </component>
+   <component name="com.intellij.coverage.CoverageDataManagerImpl">
++    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$models.coverage" NAME="models 覆盖结果" MODIFIED="1765162030264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
+     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$vectorstore.coverage" NAME="vectorstore 覆盖结果" MODIFIED="1764470343190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/rag" />
+-    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1764642181750" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
++    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$rules.coverage" NAME="rules 覆盖结果" MODIFIED="1765162039187" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
++    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$1.coverage" NAME="1 覆盖结果" MODIFIED="1765278688301" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
++    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$redis_session.coverage" NAME="redis_session 覆盖结果" MODIFIED="1765619111394" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/db" />
++    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1765620765451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows" />
+     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$config.coverage" NAME="config 覆盖结果" MODIFIED="1764470348410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
+     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$deps.coverage" NAME="deps 覆盖结果" MODIFIED="1764560398365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
+     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$loader.coverage" NAME="loader 覆盖结果" MODIFIED="1764477188501" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/ingestion" />
++    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$2.coverage" NAME="2 覆盖结果" MODIFIED="1765248644008" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
++    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$leave_graph.coverage" NAME="leave_graph 覆盖结果" MODIFIED="1765162024089" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
+   </component>
+ </project>
+\ No newline at end of file
