@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="v4&#10;把会话/状态持久化到Redis替换内存SESSIONS">
+    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="v5列出最近N条请假, 修改待审批请假,biru改期改类型">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/db/hr_mysql.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/hr_mysql.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workflows/leave/leave_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/leave/leave_graph.py" afterDir="false" />
@@ -40,7 +40,7 @@
     </favorite-branches>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="v4" />
+        <entry key="$PROJECT_DIR$" value="v5" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -56,47 +56,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "JavaScript 调试.index.html.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.1.executor": "Run",
-    "Python.2.executor": "Run",
-    "Python.config.executor": "Run",
-    "Python.deps.executor": "Run",
-    "Python.leave_graph.executor": "Run",
-    "Python.loader.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.models.executor": "Run",
-    "Python.redis_session.executor": "Run",
-    "Python.rules.executor": "Run",
-    "Python.vectorstore.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "v5",
-    "last_opened_file_path": "/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;JavaScript 调试.index.html.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.1.executor&quot;: &quot;Run&quot;,
+    &quot;Python.2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.config.executor&quot;: &quot;Run&quot;,
+    &quot;Python.deps.executor&quot;: &quot;Run&quot;,
+    &quot;Python.leave_graph.executor&quot;: &quot;Run&quot;,
+    &quot;Python.loader.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.models.executor&quot;: &quot;Run&quot;,
+    &quot;Python.redis_session.executor&quot;: &quot;Run&quot;,
+    &quot;Python.rules.executor&quot;: &quot;Run&quot;,
+    &quot;Python.vectorstore.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;v6&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "ChangesTree.GroupingKeys": [
-      "directory",
-      "repository"
+  &quot;keyToStringList&quot;: {
+    &quot;ChangesTree.GroupingKeys&quot;: [
+      &quot;directory&quot;,
+      &quot;repository&quot;
     ],
-    "DatabaseDriversLRU": [
-      "redis",
-      "mysql"
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;redis&quot;,
+      &quot;mysql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/data/docs" />
@@ -163,7 +163,8 @@
       <workItem from="1765268448608" duration="974000" />
       <workItem from="1765276563793" duration="2211000" />
       <workItem from="1765617775467" duration="4313000" />
-      <workItem from="1765622975793" duration="6451000" />
+      <workItem from="1765622975793" duration="7950000" />
+      <workItem from="1765723738559" duration="2135000" />
     </task>
     <task id="LOCAL-00001" summary="项目初建">
       <option name="closed" value="true" />
@@ -205,7 +206,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765623260303</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="v5列出最近N条请假, 修改待审批请假,biru改期改类型">
+      <option name="closed" value="true" />
+      <created>1765636550485</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1765636550485</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -227,7 +236,8 @@
     <MESSAGE value="v2" />
     <MESSAGE value="1. 识别是“请假业务”而不是普通问答&#10;2. 抽取必要槽位（leave_type / start / end / duration / reason）&#10;3. 按制度做规则校验（额度、提前天数、病假证明、最短单位…）&#10;4. 缺字段就追问补齐（多轮）&#10;5. 创建请假申请单（mock / 或对接真实HR系统）&#10;6. 返回结果 + 可查询状态" />
     <MESSAGE value="v4&#10;把会话/状态持久化到Redis替换内存SESSIONS" />
-    <option name="LAST_COMMIT_MESSAGE" value="v4&#10;把会话/状态持久化到Redis替换内存SESSIONS" />
+    <MESSAGE value="v5列出最近N条请假, 修改待审批请假,biru改期改类型" />
+    <option name="LAST_COMMIT_MESSAGE" value="v5列出最近N条请假, 修改待审批请假,biru改期改类型" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$models.coverage" NAME="models 覆盖结果" MODIFIED="1765162030264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
