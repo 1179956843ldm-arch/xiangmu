@@ -12,4 +12,5 @@ def main():
         pass
     print(f"indexed{len(docs)}chunks into Chroma.")
 if __name__ == "__main__":
+
     main()
