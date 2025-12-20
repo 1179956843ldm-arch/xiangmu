@@ -8,9 +8,9 @@ from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import HumanMessage, SystemMessage
 from app.prompts.hr_prompts import SLOT_SYSTEM, SLOT_USER
 from app.prompts.parse_date_prompts import TIME_SYSTEM, TIME_USER
-from workflows.deps import get_llm
-from workflows.leave.models import LeaveState
-from workflows.leave.rules import validate_leave
+from app.workflows.deps import get_llm
+from app.workflows.leave.models import LeaveState
+from app.workflows.leave.rules import validate_leave
 from app.db.hr_mysql import (
     get_leave_balance,
     insert_leave_request,

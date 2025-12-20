@@ -1,6 +1,6 @@
 from langchain_community.embeddings import ZhipuAIEmbeddings
 from langchain_openai import ChatOpenAI
-from workflows.config import settings
+from app.workflows.config import settings
 from app.rag.vectorstore import get_vectorstore
 # 统一管理AI模型依赖：集中配置和提供大语言模型、嵌入模型等核心AI组件
 

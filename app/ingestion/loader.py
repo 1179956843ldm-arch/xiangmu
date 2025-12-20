@@ -4,7 +4,7 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pypdf import PdfReader
 import docx
-from workflows.config import settings
+from app.workflows.config import settings
 
 def load_pdf(path: Path) -> List[Document]:
     reader = PdfReader(str(path))

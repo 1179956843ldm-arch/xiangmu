@@ -1,80 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Optional
-
 from fastapi import APIRouter, Depends, HTTPException, Header, status
-from pydantic import BaseModel, EmailStr
 
-from app.db.mysql import get_conn
-from app.security import hash_password, verify_password, create_access_token, decode_token
+from app.db.auth_db import get_user_by_username, create_user, update_last_login
+from app.model.auth_model import UserInDB, RegisterReq, TokenResp, LoginReq
+from app.security import verify_password, create_access_token, decode_token
 
-router = APIRouter(prefix="/auth", tags=["auth"])
-
-class RegisterReq(BaseModel):
-    username: str
-    password: str
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-    full_name: Optional[str] = None
-
-class LoginReq(BaseModel):
-    username: str
-    password: str
-
-class TokenResp(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-
-class UserInDB(BaseModel):
-    id: int
-    username: str
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    full_name: Optional[str] = None
-    is_active: bool
-    is_super_admin: bool
-
-
-# ---------------- DB helpers ----------------
-
-def get_user_by_username(username: str) -> dict | None:
-    sql = "SELECT * FROM users WHERE username=%s LIMIT 1"
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(sql, (username,))
-            return cur.fetchone()
-
-def create_user(data: RegisterReq) -> dict:
-    pwd_hash = hash_password(data.password)
-    sql = """
-        INSERT INTO users (username, email, phone, password_hash, full_name, is_active, is_super_admin)
-        VALUES (%s,%s,%s,%s,%s,1,0)
-    """
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(sql, (data.username, data.email, data.phone, pwd_hash, data.full_name))
-            user_id = cur.lastrowid
-
-    # 默认给 public 角色
-    sql_bind = """
-        INSERT IGNORE INTO user_roles (user_id, role_id)
-        SELECT %s, r.id FROM roles r WHERE r.code='public'
-    """
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(sql_bind, (user_id,))
-
-    u = get_user_by_username(data.username)
-    assert u is not None
-    return u
-
-def update_last_login(user_id: int):
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute("UPDATE users SET last_login_at=%s WHERE id=%s", (datetime.now(), user_id))
-
-
+auth_router = APIRouter(prefix="/auth", tags=["auth"])
 # ---------------- Dependencies ----------------
 
 def get_current_user(authorization: str | None = Header(default=None)) -> UserInDB:
@@ -117,7 +49,7 @@ def get_current_user_optional(authorization: str | None = Header(default=None)) 
 
 # ---------------- Routes ----------------
 
-@router.post("/register", response_model=UserInDB)
+@auth_router.post("/register", response_model=UserInDB)
 def register(req: RegisterReq):
     if get_user_by_username(req.username):
         raise HTTPException(status_code=400, detail="username already exists")
@@ -132,7 +64,7 @@ def register(req: RegisterReq):
         is_super_admin=bool(u["is_super_admin"]),
     )
 
-@router.post("/login", response_model=TokenResp)
+@auth_router.post("/login", response_model=TokenResp)
 def login(req: LoginReq):
     u = get_user_by_username(req.username)
     if not u:
@@ -148,6 +80,6 @@ def login(req: LoginReq):
     token = create_access_token({"sub": u["username"], "uid": int(u["id"])})
     return TokenResp(access_token=token)
 
-@router.get("/me", response_model=UserInDB)
+@auth_router.get("/me", response_model=UserInDB)
 def me(current_user: UserInDB = Depends(get_current_user)):
     return current_user

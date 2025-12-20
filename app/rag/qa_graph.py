@@ -4,7 +4,7 @@ from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import HumanMessage, AIMessage
 
 from app.prompts.qa_prompts import QA_SYSTEM, QA_USER
-from workflows.deps import get_llm, get_vs
+from app.workflows.deps import get_llm, get_vs
 
 
 class QAState(TypedDict, total=False):

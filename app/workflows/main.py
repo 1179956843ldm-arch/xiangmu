@@ -7,14 +7,18 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.redis_session import load_session, save_session
-from app.ingestion.loader import load_single_file, split_with_visibility, load_docs, split_docs
-from workflows.config import settings
+from app.ingestion.loader import load_docs, split_docs
+from app.web.auth_api import auth_router
+from app.web.rbac_api import rbac_router
+from app.workflows.config import settings
 import chromadb
 from app.ingestion.loader import load_single_file, split_with_visibility
-from workflows.deps import get_vs,get_embeddings
-from workflows.router_graph import router_graph
+from app.workflows.deps import get_vs
+from app.workflows.router_graph import router_graph
 
 app = FastAPI(title="Enterprise KB Assistant")
+app.include_router(auth_router)
+app.include_router(rbac_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],          # 本地开发可以先全开，线上再收紧
@@ -22,9 +26,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-DATA_DOCS_DIR = Path("../data/docs")
+DATA_DOCS_DIR = Path("../../data/docs")
 DATA_DOCS_DIR.mkdir(parents=True, exist_ok=True)
 SESSIONS: dict[str, dict] = {}
+
 
 class ChatReq(BaseModel):
     text: str
@@ -124,4 +129,4 @@ def reindex(visibility_default: str = Form("public")):
     return {"docs": len(raw_docs), "chunks": len(chunks), "visibility_default": visibility_default}
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8002,reload=True)
+    uvicorn.run("app.workflows.main:app", host="127.0.0.1", port=8002,reload=True)
