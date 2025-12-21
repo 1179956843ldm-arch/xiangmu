@@ -4,14 +4,19 @@ from typing import List, Set, Optional
 from app.db.hr_mysql import get_conn
 # RBAC=Role-Based Access Control  基于角色的访问控制
 def get_user_roles(user_id: int) -> List[str]:
-    """根据用户的id拿到用户的角色，在灵活的状态下，用户可以有多个角色"""
+    """根据用户的id拿到用户的角色，在灵活的状态下，用户可以有多个角色
+    -- 查询某个用户拥有的所有角色 code
+    -- 用途：登录后获取用户角色列表，用于权限判断 / 前端展示
+    -- 涉及表：
+    --   user_roles：用户与角色的中间表
+    --   roles：角色表"""
     sql = """
         SELECT r.code
         FROM roles r
         JOIN user_roles ur ON ur.role_id = r.id
         WHERE ur.user_id = %s
-        GROUP BY r.code
-        ORDER BY r.code
+        GROUP BY r.code     -- 防止重复角色
+        ORDER BY r.code     -- 按角色 code 排序
     """
     with get_conn() as conn:
         with conn.cursor() as cur:
@@ -20,14 +25,21 @@ def get_user_roles(user_id: int) -> List[str]:
     return [r["code"] for r in rows]
 
 def get_user_permissions(user_id: int) -> Set[str]:
+    """-- 查询某个用户最终拥有的所有权限 code
+    -- 权限来源：用户 → 角色 → 权限
+    -- 用途：接口鉴权、按钮级权限控制
+    -- 涉及表：
+    --   user_roles：用户与角色关系
+    --   role_permissions：角色与权限关系
+    --   permissions：权限表"""
     sql = """
         SELECT p.code
         FROM permissions p
         JOIN role_permissions rp ON rp.permission_id = p.id
         JOIN user_roles ur ON ur.role_id = rp.role_id
         WHERE ur.user_id = %s
-        GROUP BY p.code
-        ORDER BY p.code
+        GROUP BY p.code     -- 同一权限可能来自多个角色，需去重
+        ORDER BY p.code     -- 按权限 code 排序
     """
     with get_conn() as conn:
         with conn.cursor() as cur:

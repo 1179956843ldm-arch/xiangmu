@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Header, status
 
 from app.db.auth_db import get_user_by_username, create_user, update_last_login
 from app.model.auth_model import UserInDB, RegisterReq, TokenResp, LoginReq
-from app.security import verify_password, create_access_token, decode_token
+from app.service.auth_service import verify_password, create_access_token, decode_token
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 # ---------------- Dependencies ----------------

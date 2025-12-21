@@ -1,7 +1,7 @@
 from datetime import datetime
 from app.db.hr_mysql import get_conn
 from app.model.auth_model import RegisterReq
-from app.security import hash_password
+from app.service.auth_service import hash_password
 
 
 def get_user_by_username(username: str) -> dict | None:
