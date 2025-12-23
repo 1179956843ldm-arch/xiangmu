@@ -34,3 +34,8 @@ class LeaveState(TypedDict, total=False):
     confirmed: bool
     leave_id: Optional[str]
 
+    user_id: Optional[int]
+    roles: List[str]
+    permissions: List[str]
+    is_super_admin: bool
+

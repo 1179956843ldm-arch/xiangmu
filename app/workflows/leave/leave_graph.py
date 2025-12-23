@@ -11,13 +11,13 @@ from app.prompts.parse_date_prompts import TIME_SYSTEM, TIME_USER
 from app.workflows.deps import get_llm
 from app.workflows.leave.models import LeaveState
 from app.workflows.leave.rules import validate_leave
-from app.db.hr_mysql import (
+from app.db.mysql import (
     get_leave_balance,
     insert_leave_request,
     get_leave_request,
     cancel_leave_request,
     get_recent_leave_requests,
-    update_leave_request, approve_leave_request,
+    update_leave_request, approve_leave_request, reject_leave_request,
 )
 
 
@@ -57,8 +57,18 @@ def _extract_leave_id(text: str) -> str | None:
     return m.group(0) if m else None
 
 
+def _perms(state: LeaveState) -> set[str]:
+    return set(state.get("permissions") or [])
 
 
+def _has_perm(state: LeaveState, code: str) -> bool:
+    if state.get("is_super_admin"):
+        return True
+    return code in _perms(state)
+
+
+def _deny(code: str) -> dict:
+    return {"answer": f"你没有权限执行该操作（需要权限：{code}）。请联系管理员分配角色/权限。"}
 
 def decide_intent(state: LeaveState) -> str:
     """apply / query / cancel"""
@@ -96,6 +106,9 @@ def decide_intent(state: LeaveState) -> str:
 
 
 def modify_leave_node(state: LeaveState) -> dict:
+    if not _has_perm(state, "leave.modify"):
+        return _deny("leave.modify")
+
     text = state.get("text") or state.get("question") or ""
     requester = state.get("requester", "anonymous")
 
@@ -106,9 +119,11 @@ def modify_leave_node(state: LeaveState) -> dict:
     old = get_leave_request(leave_id)
     if not old:
         return {"answer": f"未找到编号为 {leave_id} 的请假申请。"}
-    if old["status"] != "PENDING":
-        return {"answer": f"{leave_id} 不是待审批状态，无法修改（当前：{old['status']}）。"}
-        # 1) 基于旧单构造 base req
+
+    if not state.get("is_super_admin") and old.get("requester") != requester:
+        return {"answer": "你只能修改自己的请假单。"}
+
+    # 1) 基于旧单构造 base req
     base_req = {
         "leave_type": old["leave_type"],
         "start_time": old["start_time"].strftime("%Y-%m-%d %H:%M"),
@@ -137,7 +152,7 @@ def modify_leave_node(state: LeaveState) -> dict:
     tdata = _safe_json_load(raw_time)
 
     new_req = dict(base_req)
-    # 优先用 slots 里的 ISO；slots 没有则用相对时间解析结果
+
     new_req["leave_type"] = slots.get("leave_type") or new_req["leave_type"]
 
     st = _safe_iso(slots.get("start_time")) or _safe_iso(tdata.get("start_time"))
@@ -161,6 +176,12 @@ def modify_leave_node(state: LeaveState) -> dict:
             tips.append("规则问题：" + "；".join(violations))
         return {"answer": "；".join(tips) + "。请重新描述修改内容。"}
 
+    # 兜底计算 duration_days（防止 rules 不写回）
+    if not new_req.get("duration_days") and new_req.get("start_time") and new_req.get("end_time"):
+        st_dt = datetime.fromisoformat(new_req["start_time"])
+        et_dt = datetime.fromisoformat(new_req["end_time"])
+        new_req["duration_days"] = round((et_dt - st_dt).total_seconds() / 3600 / 8, 2)
+
     # 5) 落库 update
     ok = update_leave_request(leave_id, {
         "leave_type": new_req["leave_type"],
@@ -179,10 +200,10 @@ def modify_leave_node(state: LeaveState) -> dict:
             f"- 类型：{new_req['leave_type']}\n"
             f"- 开始：{new_req['start_time']}\n"
             f"- 结束：{new_req['end_time']}\n"
+            f"- 时长：{new_req.get('duration_days')} 天\n"
             f"- 原因：{new_req.get('reason') or '无'}"
         )
     }
-
 
 
 
@@ -200,17 +221,27 @@ def query_leave_node(state: LeaveState) -> dict:
     leave_id = state.get("leave_id") or _extract_leave_id(text)
 
     if not leave_id:
-        # 如果没有提供id，就到数据库里查找这个用户所有的或者前面几个请假的单子显示出来
         return {"answer": "请提供请假编号（例如 LV-xxxxxxx），我才能帮你查询。"}
 
-    row = get_leave_request(leave_id)  # 到mysql数据库中按照id查询
+    row = get_leave_request(leave_id)
     if not row:
         return {"answer": f"未找到编号为 {leave_id} 的请假申请。"}
+
+    me = state.get("requester", "anonymous")
+    owner = row.get("requester")
+
+    if owner == me:
+        if not _has_perm(state, "leave.view_self"):
+            return _deny("leave.view_self")
+    else:
+        if not _has_perm(state, "leave.view_all"):
+            return _deny("leave.view_all")
 
     return {
         "leave_id": leave_id,
         "answer": (
             f"请假单 {leave_id} 当前状态：{row['status']}\n"
+            f"申请人：{row['requester']}\n"
             f"类型：{row['leave_type']}\n"
             f"开始：{row['start_time']}\n"
             f"结束：{row['end_time']}\n"
@@ -259,16 +290,25 @@ def parse_time_node(state: LeaveState) -> dict:
 
 
 def cancel_leave_node(state: LeaveState) -> dict:
+    if not _has_perm(state, "leave.cancel"):
+        return _deny("leave.cancel")
+
     text = state.get("text") or state.get("question") or ""
     leave_id = state.get("leave_id") or _extract_leave_id(text)
-
     if not leave_id:
         return {"answer": "请提供要取消的请假编号（例如 LV-xxxxxxx）。"}
 
-    ok = cancel_leave_request(leave_id)  # 也是mysql里面写好的取消代码
+    row = get_leave_request(leave_id)
+    if not row:
+        return {"answer": f"未找到编号为 {leave_id} 的请假申请。"}
+
+    me = state.get("requester", "anonymous")
+    if not state.get("is_super_admin") and row.get("requester") != me:
+        return {"answer": "你只能取消自己的请假单。"}
+
+    ok = cancel_leave_request(leave_id)
     if not ok:
         return {"answer": "取消失败：未找到该单，或单据不是待审批状态（PENDING）。"}
-
     return {"leave_id": leave_id, "answer": f"已取消请假申请 {leave_id}。"}
 
 
@@ -278,9 +318,8 @@ def cancel_leave_node(state: LeaveState) -> dict:
 
 
 def approve_leave_node(state: LeaveState) -> dict:
-    role = (state.get("user_role") or "").lower()
-    if role not in {"admin", "hr"}:
-        return {"answer": "你没有审批权限（需要 HR/Admin）。"}
+    if not _has_perm(state, "leave.approve"):
+        return _deny("leave.approve")
 
     text = state.get("text") or state.get("question") or ""
     leave_id = state.get("leave_id") or _extract_leave_id(text)
@@ -290,7 +329,6 @@ def approve_leave_node(state: LeaveState) -> dict:
     ok = approve_leave_request(leave_id, approver=state.get("requester", "admin"))
     if not ok:
         return {"answer": "审批失败：未找到该单，或单据不是待审批状态（PENDING）。"}
-
     return {"leave_id": leave_id, "answer": f"已审批通过请假单 {leave_id}。"}
 
 
@@ -302,16 +340,14 @@ def approve_leave_node(state: LeaveState) -> dict:
 
 
 def reject_leave_node(state: LeaveState) -> dict:
-    role = (state.get("user_role") or "").lower()
-    if role not in {"admin", "hr"}:
-        return {"answer": "你没有审批权限（需要 HR/Admin）。"}
+    if not _has_perm(state, "leave.reject"):
+        return _deny("leave.reject")
 
     text = state.get("text") or state.get("question") or ""
     leave_id = state.get("leave_id") or _extract_leave_id(text)
     if not leave_id:
         return {"answer": "请提供要驳回的请假编号（例如 LV-xxxxxxx）。"}
 
-    # naive reason extraction
     reason = None
     m = re.search(r"(因为|理由|原因)[:： ]?(.*)$", text)
     if m:
@@ -324,7 +360,6 @@ def reject_leave_node(state: LeaveState) -> dict:
     )
     if not ok:
         return {"answer": "驳回失败：未找到该单，或单据不是待审批状态（PENDING）。"}
-
     return {"leave_id": leave_id, "answer": f"已驳回请假单 {leave_id}。原因：{reason or '未填写'}"}
 
 
@@ -429,8 +464,10 @@ def decide_confirm(state: LeaveState) -> str:
 
 
 
-
 def create_leave_node(state: LeaveState) -> dict:
+    if not _has_perm(state, "leave.apply"):
+        return _deny("leave.apply")
+
     req = state.get("req") or {}
     leave_id = "LV-" + uuid.uuid4().hex[:8]
     req_to_save = {
@@ -444,6 +481,7 @@ def create_leave_node(state: LeaveState) -> dict:
     }
     insert_leave_request(req_to_save)
     return {"leave_id": leave_id, "answer": f"已提交请假申请，编号 {leave_id}，等待审批。"}
+
 
 
 
@@ -470,6 +508,9 @@ def _extract_limit(text: str, default: int = 5) -> int:
 
 
 def list_leave_node(state: LeaveState) -> dict:
+    if not _has_perm(state, "leave.view_self"):
+        return _deny("leave.view_self")
+
     text = state.get("text") or state.get("question") or ""
     requester = state.get("requester", "anonymous")
     limit = _extract_limit(text, default=5)
@@ -486,7 +527,6 @@ def list_leave_node(state: LeaveState) -> dict:
             f"{r['duration_days']}天 | {r['status']}"
         )
     return {"answer": "\n".join(lines)}
-
 
 
 

@@ -57,14 +57,23 @@ def load_single_file(path:Path):
 # def load_single_file(path: Path) -> List[Document]:
 #     """根据文件后缀加载文件，返回LangChain的 Document列表"""
 
-def split_with_visibility(docs: List[Document], visibility: str,doc_id: str | None = None):
+def split_with_visibility(
+    docs: List[Document],
+    visibility: str,
+    doc_id: str | None = None,
+    extra_meta: dict | None = None,
+) -> List[Document]:
     chunks = split_docs(docs)
+    extra_meta = dict(extra_meta or {})
     for c in chunks:
         c.metadata = dict(c.metadata or {})
         c.metadata["visibility"] = visibility
         if doc_id:
             c.metadata["doc_id"] = doc_id
-    return  chunks
+        for k, v in extra_meta.items():
+            if v is not None:
+                c.metadata[k] = v
+    return chunks
 
 #todo 第二个函数主要是把一批Document切成小块，并且给每一小块贴上权限标签visibility和文档ID。
 if __name__ == "__main__":

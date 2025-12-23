@@ -1,5 +1,5 @@
 from datetime import datetime
-from app.db.hr_mysql import get_conn
+from app.db.mysql import get_conn
 from app.model.auth_model import RegisterReq
 from app.service.auth_service import hash_password
 
