@@ -19,5 +19,5 @@ class Settings(BaseModel):
     zhipu_base_url: str = os.getenv("ZHIPU_BASE_URL", "")
     zhipu_api_key: str = os.getenv("ZHIPU_API_KEY", "")
     embedding_model_name: str = os.getenv("EMBEDDING_MODEL_NAME", "embedding-3")
-
+    ALLOWED_VISIBILITIES: set[str] = {"public", "internal", "hr", "it"}
 settings = Settings()

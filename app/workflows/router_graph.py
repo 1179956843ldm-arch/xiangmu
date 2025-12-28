@@ -1,13 +1,12 @@
+from __future__ import annotations
 # 我们这里搭了一个顶层Router图，
 # 这个非常简单，现在只有一种模式：不管怎样都把请求丢给qa_graph去做RAG。
-#
 # 后面我们可以在这里挂更多模式，比如：
 # • action -> 走前面那个工单创建workflow
 # • chat -> 走一个纯闲聊LLM
 # • tool -> 调用别的工具
-#
 # 现在是一个最小可用版本，只实现了Q&A路由
-from __future__ import annotations
+
 
 from typing import TypedDict, Any
 from langgraph.graph import StateGraph, START, END

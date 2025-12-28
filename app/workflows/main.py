@@ -5,11 +5,11 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-
 from app.db import kb_db
 from app.db.redis_session import load_session, save_session
 from app.ingestion.loader import load_docs, split_docs
 from app.model.auth_model import UserInDB
+from app.service.visibility_service import normalize_visibility
 from app.web.auth_api import auth_router, get_current_user
 from app.workflows.config import settings
 import chromadb
@@ -20,6 +20,7 @@ from app.service.rbac_service import check_permission
 from app.web.rbac_api import rbac_router
 from fastapi import Depends
 from app.web.kb_api import router as kb_router
+from app.rag.chroma_admin import count_by_doc_id
 app = FastAPI(title="Enterprise KB Assistant")
 app.include_router(auth_router)
 
@@ -87,6 +88,7 @@ async def ingest(file:UploadFile = File(...),
                  visibility: str = Form("public"),
                  doc_id:Optional[ str] = Form(None),
                  overwrite: bool = Form(False),
+                 delete_old_file: bool = Form(False),
                  current_user:UserInDB=Depends(get_current_user),):
     """
         文档入库：需要 kb.manage_docs 权限
@@ -94,34 +96,32 @@ async def ingest(file:UploadFile = File(...),
     check_permission(current_user, "kb.manage_docs")
     if not file.filename:
         raise HTTPException(status_code=400, detail="Empty filename")
-    visibility = (visibility or "public").strip().lower()
+    visibility = normalize_visibility(visibility or "public")
     doc_id = (doc_id or f"doc-{uuid.uuid4().hex[:12]}").strip()
     existed = kb_db.get_kb_document(doc_id)
     if existed and not overwrite:
         raise HTTPException(status_code=409, detail=f"doc_id already exists: {doc_id}")
     if existed and overwrite:
-        from app.rag.chroma_admin import delete_by_doc_id
+        old_path = existed["stored_path"] if existed else None
+        # old_path里面放的是旧文档存放的路径
 
-        try:
-            delete_by_doc_id(doc_id)
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"覆盖文档失败：删除旧向量数据出错，doc_id={doc_id}")
-    suffix = Path(file.filename).suffix
-    safe_name =  f"{int(time.time())}_{uuid.uuid4().hex}{suffix}"
-    save_path =  DATA_DOCS_DIR / safe_name
-    content = await file.read()
+        # 1) 先把新文件保存下来
+        suffix = Path(file.filename).suffix
+        safe_name = f"{int(time.time())}_{uuid.uuid4().hex}{suffix}"
+        save_path = DATA_DOCS_DIR / safe_name
+
+        content = await file.read()  # 因为上传文件时间较长
 
 
     if not content:
         raise HTTPException(status_code=400, detail="Empty file")
     save_path.write_bytes(content)
+
+    # 2) 先解析新文件、切分出 chunks（确保新文件 OK）
     docs = load_single_file(save_path)
-
-
     if not docs:
         raise HTTPException(status_code=400, detail=f"Unsupported or empty file type: {suffix}")
+
     extra_meta = {
         "original_filename": file.filename,
         "stored_path": str(save_path),
@@ -129,41 +129,57 @@ async def ingest(file:UploadFile = File(...),
         "uploader_username": current_user.username,
         "uploaded_at": int(time.time()),
     }
-    chunks = split_with_visibility(docs, visibility=visibility, doc_id=doc_id,extra_meta=extra_meta)
+    chunks = split_with_visibility(docs, visibility=visibility, doc_id=doc_id, extra_meta=extra_meta)
+    # 程序到此处的时候，新文件已经彻底被分割并放好元数据
+
+
+    # 3) 如果overwrite：现在再删旧的chroma chunks（此时新 chunks 已经准备好）
+    if existed and overwrite:  # 旧文件要被覆盖，新文件也没问题，要彻底替换
+        from app.rag.chroma_admin import delete_by_doc_id
+        delete_by_doc_id(doc_id)
+
+    # 4) 写入向量库
     vs = get_vs()
     vs.add_documents(chunks)
 
-    try:
-        from app.rag.chroma_admin import count_by_doc_id
 
-        chroma_cnt = count_by_doc_id(doc_id)
-    except Exception:
-        chroma_cnt = len(chunks)
+    # 5) 更新注册表——此处的注册表只是一个叫法，实际上就是mysql，和windwos的注册表无关
 
-    try:
-        kb_db.upsert_kb_document(
-            doc_id=doc_id,
-            original_filename=file.filename,
-            stored_path=str(save_path),
-            visibility=visibility,
-            uploader_user_id=current_user.id,
-            uploader_username=current_user.username,
-            chunk_count=chroma_cnt,
-        )
-    except Exception as e:
-        return {
-            "success": True,
-            "message": "文档已成功入库到向量数据库，但元数据写入数据库失败",
-            "doc_id": doc_id,
-            "db_error": str(e)
-        }
+    chroma_cnt = count_by_doc_id(doc_id)
+
+    kb_db.upsert_kb_document(
+        doc_id=doc_id,
+        original_filename=file.filename,
+        stored_path=str(save_path),
+        visibility=visibility,
+        uploader_user_id=current_user.id,
+        uploader_username=current_user.username,
+        chunk_count=chroma_cnt,
+    )
+
+    # 6) overwrite 时可选删除旧文件（最后一步做）
+    deleted_old_file = False
+    if delete_old_file and old_path and old_path != str(save_path):
+        try:
+            p = Path(old_path)
+            if p.exists() and p.is_file():  # p.is_file是担心对文件夹有影响
+                p.unlink()  # unlink想像成为删除文件
+                deleted_old_file = True
+        except Exception:
+            deleted_old_file = False
 
     return {
-            "saved_as":str(save_path),
-            "visibility":visibility,
-            "doc_id":doc_id,
-            "chunks":len(chunks),
-            "overwrote":bool(existed and overwrite),}
+        "saved_as": str(save_path),
+        "visibility": visibility,
+        "doc_id": doc_id,
+        "chunks": chroma_cnt,
+        "overwrote": bool(existed and overwrite),
+        "deleted_old_file": deleted_old_file,
+    }
+
+
+
+
 @app.post("/reindex")
 def reindex(visibility_default: str = Form("public"),
             current_user=Depends(get_current_user)):

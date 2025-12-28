@@ -5,12 +5,13 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from app.service.visibility_service import normalize_visibility
 from app.web.auth_api import UserInDB, get_current_user
 from app.db import kb_db
 from app.ingestion.loader import load_single_file, split_with_visibility
 from app.service.rbac_service import check_permission
 from app.rag.chroma_admin import count_by_doc_id, delete_by_doc_id, update_visibility_by_doc_id
-from app.model.kb_model import KBDocListItem, KBDocDetail, KBDocVisibilityUpdateReq, KBDocReembedResp
+from app.model.kb_model import KBDocListItem, KBDocDetail, KBDocVisibilityUpdateReq, KBDocReembedResp, KBDocPageResp
 
 router = APIRouter(prefix="/kb", tags=["kb"])
 
@@ -64,7 +65,7 @@ def update_doc_visibility(
     if not row:
         raise HTTPException(status_code=404, detail="doc not found")
 
-    visibility = (req.visibility or "").strip().lower()
+    visibility = normalize_visibility(req.visibility)
     if not visibility:
         raise HTTPException(status_code=400, detail="visibility is required")
 
@@ -76,6 +77,7 @@ def update_doc_visibility(
     data = dict(new_row)
     data["chroma_chunk_count"] = updated
     return data
+
 
 
 @router.delete("/docs/{doc_id}")
@@ -150,3 +152,45 @@ def reembed_doc(
     kb_db.update_kb_document_visibility(doc_id, visibility)
 
     return KBDocReembedResp(doc_id=doc_id, deleted_chunks=deleted, new_chunks=new_cnt, visibility=visibility)
+
+
+
+
+# 7. app/api/kb_api.py新增/kb/docs/page接口
+@router.get("/docs/page", response_model=KBDocPageResp)
+def list_docs_page(
+    visibility: Optional[str] = Query(default=None),
+    q: Optional[str] = Query(default=None),
+    order_by: str = Query(default="updated_at"),
+    desc: bool = Query(default=True),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    include_chroma_count: bool = Query(default=False),
+    current_user: UserInDB = Depends(get_current_user),
+):
+    check_permission(current_user, "kb.manage_docs")
+
+    total = kb_db.count_kb_documents(visibility=visibility, q=q)
+    rows = kb_db.list_kb_documents(
+        limit=limit,
+        offset=offset,
+        visibility=visibility,
+        q=q,
+        order_by=order_by,
+        desc=desc,
+    )
+
+    items: list[dict] = []
+    for r in rows:
+        item = dict(r)
+        if include_chroma_count:
+            item["chunk_count"] = count_by_doc_id(item["doc_id"])
+        items.append(item)
+
+    return {
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "items": items,
+    }
+

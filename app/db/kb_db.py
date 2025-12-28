@@ -126,3 +126,35 @@ def soft_delete_kb_document(doc_id: str) -> bool:
                 (doc_id,),
             )
             return cur.rowcount > 0
+def count_kb_documents(*, visibility: str | None = None, q: str | None = None) -> int:
+    sql = "SELECT COUNT(*) AS cnt FROM kb_documents WHERE is_deleted=0 "
+    args: list[Any] = []
+
+    if visibility:
+        sql += "AND visibility=%s "
+        args.append(visibility)
+
+    if q:
+        q = q.strip()
+        if q:
+            sql += "AND (original_filename LIKE %s OR doc_id LIKE %s) "
+            like = f"%{q}%"
+            args.extend([like, like])
+
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql, tuple(args))
+            row = cur.fetchone()
+            return int(row["cnt"]) if row and "cnt" in row else 0
+
+def get_allowed_visibilities() -> set[str]:
+    with get_conn() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT name
+                FROM visibility_types
+                ORDER BY id
+            """)
+            rows = cursor.fetchall()
+            return {row["name"] for row in rows}
+

@@ -4,20 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="v6.2 项目从每一个功能一个文件夹，逐渐变化成按照模型，db，service，api来划分的文件夹结构。">
-      <change afterPath="$PROJECT_DIR$/app/db/kb_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/kb_model.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/rag/chroma_admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/web/kb_api.py" afterDir="false" />
+    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="v6.3&#10;我们上一个例子做的时候文档查询已经是一个缺口或者比较麻烦，所以我们打算补全一下文档操作。&#10;&#10;文档生命周期管理（KB管理后台/接口）&#10;文档列表、按doc_id删除、更新可见性、查看文档状态（chunk数/更新时间/来源）、按doc_id重新切分+重嵌入">
+      <change afterPath="$PROJECT_DIR$/app/service/visibility_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/db/auth_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/auth_db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/db/hr_mysql.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/mysql.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/db/rbac_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/rbac_db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ingestion/loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/ingestion/loader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/workflows/leave/leave_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/leave/leave_graph.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/workflows/leave/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/leave/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/kb_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/kb_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/kb_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/kb_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/service/rbac_codes.py" beforeDir="false" afterPath="$PROJECT_DIR$/constants/rbac_codes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/web/kb_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/web/kb_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/web/rbac_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/web/rbac_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/workflows/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/workflows/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/workflows/router_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/router_graph.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +48,7 @@
     </favorite-branches>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="v6.2" />
+        <entry key="$PROJECT_DIR$" value="v6.3" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -90,7 +87,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;v6.3&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;v6.4&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -107,8 +104,8 @@
       &quot;repository&quot;
     ],
     &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;,
-      &quot;redis&quot;
+      &quot;redis&quot;,
+      &quot;mysql&quot;
     ]
   }
 }</component>
@@ -118,11 +115,11 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/constants" />
       <recent name="$PROJECT_DIR$/app/service" />
       <recent name="$PROJECT_DIR$/app/secutiry" />
       <recent name="$PROJECT_DIR$/app" />
       <recent name="$PROJECT_DIR$/app/web" />
-      <recent name="$PROJECT_DIR$/app/db/rbac" />
     </key>
   </component>
   <component name="RunManager">
@@ -197,6 +194,9 @@
       <workItem from="1766466606867" duration="1529000" />
       <workItem from="1766471919761" duration="10831000" />
       <workItem from="1766484179143" duration="3558000" />
+      <workItem from="1766487795935" duration="238000" />
+      <workItem from="1766640464927" duration="8512000" />
+      <workItem from="1766819013018" duration="7448000" />
     </task>
     <task id="LOCAL-00001" summary="项目初建">
       <option name="closed" value="true" />
@@ -270,7 +270,23 @@
       <option name="project" value="LOCAL" />
       <updated>1766301564146</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="v6.3&#10;我们上一个例子做的时候文档查询已经是一个缺口或者比较麻烦，所以我们打算补全一下文档操作。&#10;&#10;文档生命周期管理（KB管理后台/接口）&#10;文档列表、按doc_id删除、更新可见性、查看文档状态（chunk数/更新时间/来源）、按doc_id重新切分+重嵌入">
+      <option name="closed" value="true" />
+      <created>1766487947810</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1766487947810</updated>
+    </task>
+    <task id="LOCAL-00011" summary="v6.3&#10;我们上一个例子做的时候文档查询已经是一个缺口或者比较麻烦，所以我们打算补全一下文档操作。&#10;&#10;文档生命周期管理（KB管理后台/接口）&#10;文档列表、按doc_id删除、更新可见性、查看文档状态（chunk数/更新时间/来源）、按doc_id重新切分+重嵌入">
+      <option name="closed" value="true" />
+      <created>1766487974258</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1766487974258</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -299,7 +315,8 @@
     <MESSAGE value="v6.1完全权限模块，为后续所有模块打下基础&#10;&#10;需要添加新的依赖&#10;bcrypt&lt;4&#10;passlib==1.7.4&#10;python-jose[cryptography]&gt;=3.3.0&#10;pydantic[email]&#10;更新一下&#10;pypdf==6.4.1  # 旧版本爆漏洞了" />
     <MESSAGE value="v6.2修正框架" />
     <MESSAGE value="v6.2 项目从每一个功能一个文件夹，逐渐变化成按照模型，db，service，api来划分的文件夹结构。" />
-    <option name="LAST_COMMIT_MESSAGE" value="v6.2 项目从每一个功能一个文件夹，逐渐变化成按照模型，db，service，api来划分的文件夹结构。" />
+    <MESSAGE value="v6.3&#10;我们上一个例子做的时候文档查询已经是一个缺口或者比较麻烦，所以我们打算补全一下文档操作。&#10;&#10;文档生命周期管理（KB管理后台/接口）&#10;文档列表、按doc_id删除、更新可见性、查看文档状态（chunk数/更新时间/来源）、按doc_id重新切分+重嵌入" />
+    <option name="LAST_COMMIT_MESSAGE" value="v6.3&#10;我们上一个例子做的时候文档查询已经是一个缺口或者比较麻烦，所以我们打算补全一下文档操作。&#10;&#10;文档生命周期管理（KB管理后台/接口）&#10;文档列表、按doc_id删除、更新可见性、查看文档状态（chunk数/更新时间/来源）、按doc_id重新切分+重嵌入" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$models.coverage" NAME="models 覆盖结果" MODIFIED="1765162030264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />

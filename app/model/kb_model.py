@@ -1,6 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 # app/model/kb_model.py
 # 下面的几个模型基本上都是数据库里查出来后，用户要用到的属性组成的。
@@ -31,3 +31,10 @@ class KBDocReembedResp(BaseModel):
     deleted_chunks: int
     new_chunks: int
     visibility: str
+
+# 6. app/model/kb_model.py新增分页响应模型
+class KBDocPageResp(BaseModel):
+    total: int
+    limit: int
+    offset: int
+    items: List[KBDocListItem]

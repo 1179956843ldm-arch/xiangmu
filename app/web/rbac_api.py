@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.db import rbac_db
 from app.model.rbac_model import SetUserRolesReq, SetRolePermsReq
 from app.service.rbac_service import require_permission
-from app.service.rbac_codes import Permission
+from constants.rbac_codes import Permission
 
 rbac_router = APIRouter(prefix="/rbac", tags=["rbac"])
 
