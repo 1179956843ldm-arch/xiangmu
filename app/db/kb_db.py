@@ -43,7 +43,6 @@ def upsert_kb_document(
                 ),
             )
 
-
 def list_kb_documents(*,
                       limit: int = 50,
                       offset: int = 0,

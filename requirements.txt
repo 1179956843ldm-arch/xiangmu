@@ -27,3 +27,12 @@ redis==7.1.0
 # --- auth ---
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]>=3.3.0,<4.0
+
+# --- audio ---
+faster-whisper==1.2.1
+ffmpeg-python==0.2.0
+soundfile==0.13.1
+numpy==2.4.0
+
+celery==5.6.0
+amqp==5.3.1

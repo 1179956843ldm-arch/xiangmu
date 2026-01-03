@@ -5,16 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="v6.3&#10;我们上一个例子做的时候文档查询已经是一个缺口或者比较麻烦，所以我们打算补全一下文档操作。&#10;&#10;文档生命周期管理（KB管理后台/接口）&#10;文档列表、按doc_id删除、更新可见性、查看文档状态（chunk数/更新时间/来源）、按doc_id重新切分+重嵌入">
-      <change afterPath="$PROJECT_DIR$/app/service/visibility_service.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/celery_app.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/db/audio_db.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/db/audio_job_db.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/ingestion/asr.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/ingestion/audio_loader.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/ingestion/segmenter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/model/audio_model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/rag/retrieve_audio.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/tools/audio_tool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/web/audio_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/db/kb_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/kb_db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/model/kb_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/kb_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/service/rbac_codes.py" beforeDir="false" afterPath="$PROJECT_DIR$/constants/rbac_codes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/web/kb_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/web/kb_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/web/rbac_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/web/rbac_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/rag/chroma_admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/rag/chroma_admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/rag/vectorstore.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/rag/vectorstore.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/service/visibility_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/service/visibility_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/workflows/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/workflows/deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/deps.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/workflows/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/workflows/router_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/router_graph.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,6 +81,8 @@
     &quot;Python.1.executor&quot;: &quot;Run&quot;,
     &quot;Python.2.executor&quot;: &quot;Run&quot;,
     &quot;Python.ai_profiler.executor&quot;: &quot;Run&quot;,
+    &quot;Python.audio_api.executor&quot;: &quot;Run&quot;,
+    &quot;Python.audio_loader.executor&quot;: &quot;Run&quot;,
     &quot;Python.build_index.executor&quot;: &quot;Run&quot;,
     &quot;Python.config.executor&quot;: &quot;Run&quot;,
     &quot;Python.deps.executor&quot;: &quot;Run&quot;,
@@ -87,7 +98,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;v6.4&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;v8&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -115,11 +126,11 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/constants" />
+      <recent name="$PROJECT_DIR$/app/tools" />
       <recent name="$PROJECT_DIR$/app/service" />
+      <recent name="$PROJECT_DIR$/constants" />
       <recent name="$PROJECT_DIR$/app/secutiry" />
       <recent name="$PROJECT_DIR$/app" />
-      <recent name="$PROJECT_DIR$/app/web" />
     </key>
   </component>
   <component name="RunManager">
@@ -197,6 +208,12 @@
       <workItem from="1766487795935" duration="238000" />
       <workItem from="1766640464927" duration="8512000" />
       <workItem from="1766819013018" duration="7448000" />
+      <workItem from="1766909524365" duration="3825000" />
+      <workItem from="1766917976514" duration="2847000" />
+      <workItem from="1766921122480" duration="2248000" />
+      <workItem from="1767073432159" duration="5994000" />
+      <workItem from="1767081572687" duration="4648000" />
+      <workItem from="1767428675662" duration="5192000" />
     </task>
     <task id="LOCAL-00001" summary="项目初建">
       <option name="closed" value="true" />
@@ -325,12 +342,14 @@
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$permission.coverage" NAME="permission 覆盖结果" MODIFIED="1766047868325" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/secutiry/rbac" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$redis_session.coverage" NAME="redis_session 覆盖结果" MODIFIED="1765619111394" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/db" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$rules.coverage" NAME="rules 覆盖结果" MODIFIED="1765162039187" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$audio_loader.coverage" NAME="audio_loader 覆盖结果" MODIFIED="1767432693282" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/ingestion" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$loader.coverage" NAME="loader 覆盖结果" MODIFIED="1764477188501" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/ingestion" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$ai_profiler.coverage" NAME="ai_profiler 覆盖结果" MODIFIED="1766070070377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_PLUGINS_DIR$/ai-debugger/python" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$1.coverage" NAME="1 覆盖结果" MODIFIED="1765278688301" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$build_index.coverage" NAME="build_index 覆盖结果" MODIFIED="1765883762817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/ingestion" />
-    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1766487432331" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/workflows" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1767433751068" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/workflows" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$config.coverage" NAME="config 覆盖结果" MODIFIED="1764470348410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$audio_api.coverage" NAME="audio_api 覆盖结果" MODIFIED="1766919595894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/web" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$deps.coverage" NAME="deps 覆盖结果" MODIFIED="1764560398365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$2.coverage" NAME="2 覆盖结果" MODIFIED="1765248644008" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$leave_graph.coverage" NAME="leave_graph 覆盖结果" MODIFIED="1765162024089" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />

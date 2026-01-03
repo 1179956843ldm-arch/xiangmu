@@ -1,7 +1,9 @@
 from langchain_community.embeddings import ZhipuAIEmbeddings
 from langchain_openai import ChatOpenAI
 from app.workflows.config import settings
-from app.rag.vectorstore import get_vectorstore
+from app.rag.vectorstore import get_vectorstore, get_audio_vectorstore
+
+
 # 统一管理AI模型依赖：集中配置和提供大语言模型、嵌入模型等核心AI组件
 
 def get_llm():
@@ -26,6 +28,13 @@ def get_embeddings():
 
 def get_vs():                           #创建并返回向量存储实例
     return get_vectorstore(get_embeddings())
+
+
+
+
+def get_audio_vs():
+    return get_audio_vectorstore(get_embeddings())
+
 
 
 if __name__ == "__main__":

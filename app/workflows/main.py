@@ -21,11 +21,13 @@ from app.web.rbac_api import rbac_router
 from fastapi import Depends
 from app.web.kb_api import router as kb_router
 from app.rag.chroma_admin import count_by_doc_id
+from app.web.audio_api import router as audio_router
 app = FastAPI(title="Enterprise KB Assistant")
 app.include_router(auth_router)
 
 app.include_router(kb_router)
 
+app.include_router(audio_router)
 
 app.include_router(rbac_router)
 app.add_middleware(
@@ -215,4 +217,4 @@ def reindex(visibility_default: str = Form("public"),
     return {"docs": len(raw_docs), "chunks": len(chunks), "visibility_default": visibility_default}
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.workflows.main:app", host="127.0.0.1", port=8002,reload=True)
+    uvicorn.run("app.workflows.main:app", host="127.0.0.1", port=8003,reload=True)
