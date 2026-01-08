@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import List, Set, Optional
 
 from app.db.mysql import get_conn
+#todo实现了一个完整的 RBAC（基于角色的访问控制）数据库操作层
 # RBAC=Role-Based Access Control  基于角色的访问控制
 def get_user_roles(user_id: int) -> List[str]:
     """根据用户的id拿到用户的角色，在灵活的状态下，用户可以有多个角色

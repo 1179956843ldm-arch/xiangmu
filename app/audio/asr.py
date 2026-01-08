@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from faster_whisper import WhisperModel
-
+#todo 这段代码是 干净、标准的 ASR 封装，可以直接用来识别音频并返回时间轴，非常适合做语音搜索或者字幕生成。
 
 @dataclass		# 数据类
 class ASRSegment:

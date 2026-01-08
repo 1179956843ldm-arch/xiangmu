@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+#todo 是一个完整的 知识库（KB）文档管理模块，功能和数据库操作类似之前的音频模块，但面向文档（存储在 Chroma/数据库中）。
 from typing import Optional, Any
 from app.db.mysql import get_conn
 # 将chromadb中的每一个文档信息都存入数据库

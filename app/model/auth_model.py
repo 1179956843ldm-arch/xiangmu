@@ -1,7 +1,7 @@
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr
-
+#todo 你这段代码是 用户注册/登录相关的 Pydantic 模型定义，主要用于请求验证和响应序列化。
 
 class RegisterReq(BaseModel):
     username: str

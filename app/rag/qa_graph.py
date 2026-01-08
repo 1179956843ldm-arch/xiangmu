@@ -5,7 +5,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 
 from app.prompts.qa_prompts import QA_SYSTEM, QA_USER
 from app.workflows.deps import get_llm, get_vs
-
+#todo 这一段代码是一个 基于状态图的问答（QA）流程引擎，核心思想是用 状态节点（State Nodes）+ 状态机逻辑 来控制问答的处理流程。
 
 class QAState(TypedDict, total=False):
     question: str

@@ -4,7 +4,7 @@ from typing import Any
 
 from jose import jwt
 from passlib.context import CryptContext
-
+#todo 你这段代码实现了 用户密码哈希与验证 + JWT 生成和解码 的完整功能。
 PWD_CONTEXT = CryptContext(
     schemes=["bcrypt_sha256"],
     deprecated="auto",

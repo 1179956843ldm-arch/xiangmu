@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, status
 
 from app.web.auth_api import get_current_user, UserInDB
 from app.db.rbac_db import get_user_permissions
-
+#todo你这段代码是一个 RBAC（基于角色的访问控制）权限工具集，核心功能是检测用户是否拥有某个权限，以及根据权限决定一些行为（比如知识库可见性）。
 # ----------------helper-----------------
 def _resolve_perms(*,
                    user: UserInDB | None = None,

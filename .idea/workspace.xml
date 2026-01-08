@@ -4,12 +4,39 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="这个版本主要做了一个按时间区间/按段落ID裁剪音频，并以mp3返回的后端代码&#10;主要用于音频检索/播放或标注场景里后面点一下就听某一段的需求&#10;把音频入库改成异步任务，否则一段长音频会卡死HTTP请求，也很难做失败重试/状态展示。">
-      <change afterPath="$PROJECT_DIR$/app/pipeline.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/task/audio_tasks.py" afterDir="false" />
+    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="1.转码标准化：任意音频 → wav 16kHz / mono（ffmpeg）&#10;2.VAD切分：用webrtcvad库先找有声段，去掉静音/空白，提高ASR和chunk的质量&#10;3.ASR转写：用faster-whisper对每个有声段转写，带时间戳&#10;4.合并成检索段：把ASR片段合并成适合检索的chunk，同时限制最大/小长度，尽量按标点收尾&#10;之后写db，chromadb，返回结果结束。&#10;然后本段做了大量调整，但是基本都集中在api上，我冲新设计了一下返回的api。&#10;这个api的改动只需要和前台对接好即可。不需要影响程序其他部分。">
+      <change afterPath="$PROJECT_DIR$/app/tasks/audio_tasks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/celery_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/celery_app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/celery_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/audio/celery_app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/audio_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/audio/audio_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/audio_job_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/audio/audio_job_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/auth_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/auth_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/kb_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/kb_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/mysql.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/mysql.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/rbac_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/rbac_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/redis_session.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/redis_session.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/ingestion/asr.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/audio/asr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/ingestion/audio_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/audio/audio_loader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/ingestion/build_index.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/ingestion/build_index.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/ingestion/loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/ingestion/loader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/ingestion/segmenter.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/audio/segmenter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/audio_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/audio_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/auth_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/auth_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/kb_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/kb_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/rbac_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/rbac_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/pipeline.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/audio/pipeline.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/rag/chroma_admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/rag/chroma_admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/rag/qa_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/rag/qa_graph.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/rag/retrieve_audio.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/audio/retrieve_audio.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/rag/vectorstore.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/rag/vectorstore.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/service/auth_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/service/auth_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/service/rbac_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/service/rbac_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/service/visibility_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/service/visibility_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/task/audio_tasks.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tools/audio_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/audio/audio_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tools/leave_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/tools/leave_tools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/web/audio_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/web/audio_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/workflows/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/config.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,64 +86,64 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "JavaScript 调试.index.html.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.1.executor": "Run",
-    "Python.2.executor": "Run",
-    "Python.ai_profiler.executor": "Run",
-    "Python.audio_api.executor": "Run",
-    "Python.audio_loader.executor": "Run",
-    "Python.build_index.executor": "Run",
-    "Python.config.executor": "Run",
-    "Python.deps.executor": "Run",
-    "Python.leave_graph.executor": "Run",
-    "Python.loader.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.models.executor": "Run",
-    "Python.permission.executor": "Run",
-    "Python.redis_session.executor": "Run",
-    "Python.rules.executor": "Run",
-    "Python.security.executor": "Run",
-    "Python.vectorstore.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "v8.3",
-    "last_opened_file_path": "/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "settings.sync",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;JavaScript 调试.index.html.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.1.executor&quot;: &quot;Run&quot;,
+    &quot;Python.2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ai_profiler.executor&quot;: &quot;Run&quot;,
+    &quot;Python.audio_api.executor&quot;: &quot;Run&quot;,
+    &quot;Python.audio_loader.executor&quot;: &quot;Run&quot;,
+    &quot;Python.build_index.executor&quot;: &quot;Run&quot;,
+    &quot;Python.config.executor&quot;: &quot;Run&quot;,
+    &quot;Python.deps.executor&quot;: &quot;Run&quot;,
+    &quot;Python.leave_graph.executor&quot;: &quot;Run&quot;,
+    &quot;Python.loader.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.models.executor&quot;: &quot;Run&quot;,
+    &quot;Python.permission.executor&quot;: &quot;Run&quot;,
+    &quot;Python.redis_session.executor&quot;: &quot;Run&quot;,
+    &quot;Python.rules.executor&quot;: &quot;Run&quot;,
+    &quot;Python.security.executor&quot;: &quot;Run&quot;,
+    &quot;Python.vectorstore.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;v8.3&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.sync&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "ChangesTree.GroupingKeys": [
-      "directory",
-      "repository"
+  &quot;keyToStringList&quot;: {
+    &quot;ChangesTree.GroupingKeys&quot;: [
+      &quot;directory&quot;,
+      &quot;repository&quot;
     ],
-    "DatabaseDriversLRU": [
-      "redis",
-      "mysql"
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;redis&quot;,
+      &quot;mysql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/data/docs" />
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/audio" />
+      <recent name="$PROJECT_DIR$/app/model" />
+      <recent name="$PROJECT_DIR$/app/web" />
       <recent name="$PROJECT_DIR$/app/tools" />
       <recent name="$PROJECT_DIR$/app/service" />
-      <recent name="$PROJECT_DIR$/constants" />
-      <recent name="$PROJECT_DIR$/app/secutiry" />
-      <recent name="$PROJECT_DIR$/app" />
     </key>
   </component>
   <component name="RunManager">
@@ -200,7 +227,10 @@
       <workItem from="1767073432159" duration="5994000" />
       <workItem from="1767081572687" duration="4648000" />
       <workItem from="1767428675662" duration="6578000" />
-      <workItem from="1767677550666" duration="8326000" />
+      <workItem from="1767677550666" duration="14347000" />
+      <workItem from="1767781310899" duration="2887000" />
+      <workItem from="1767869022712" duration="1828000" />
+      <workItem from="1767870866739" duration="1068000" />
     </task>
     <task id="LOCAL-00001" summary="项目初建">
       <option name="closed" value="true" />
@@ -298,7 +328,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767433981334</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="1.转码标准化：任意音频 → wav 16kHz / mono（ffmpeg）&#10;2.VAD切分：用webrtcvad库先找有声段，去掉静音/空白，提高ASR和chunk的质量&#10;3.ASR转写：用faster-whisper对每个有声段转写，带时间戳&#10;4.合并成检索段：把ASR片段合并成适合检索的chunk，同时限制最大/小长度，尽量按标点收尾&#10;之后写db，chromadb，返回结果结束。&#10;然后本段做了大量调整，但是基本都集中在api上，我冲新设计了一下返回的api。&#10;这个api的改动只需要和前台对接好即可。不需要影响程序其他部分。">
+      <option name="closed" value="true" />
+      <created>1767690943048</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1767690943048</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -329,7 +367,19 @@
     <MESSAGE value="v6.2 项目从每一个功能一个文件夹，逐渐变化成按照模型，db，service，api来划分的文件夹结构。" />
     <MESSAGE value="v6.3&#10;我们上一个例子做的时候文档查询已经是一个缺口或者比较麻烦，所以我们打算补全一下文档操作。&#10;&#10;文档生命周期管理（KB管理后台/接口）&#10;文档列表、按doc_id删除、更新可见性、查看文档状态（chunk数/更新时间/来源）、按doc_id重新切分+重嵌入" />
     <MESSAGE value="这个版本主要做了一个按时间区间/按段落ID裁剪音频，并以mp3返回的后端代码&#10;主要用于音频检索/播放或标注场景里后面点一下就听某一段的需求&#10;把音频入库改成异步任务，否则一段长音频会卡死HTTP请求，也很难做失败重试/状态展示。" />
-    <option name="LAST_COMMIT_MESSAGE" value="这个版本主要做了一个按时间区间/按段落ID裁剪音频，并以mp3返回的后端代码&#10;主要用于音频检索/播放或标注场景里后面点一下就听某一段的需求&#10;把音频入库改成异步任务，否则一段长音频会卡死HTTP请求，也很难做失败重试/状态展示。" />
+    <MESSAGE value="1.转码标准化：任意音频 → wav 16kHz / mono（ffmpeg）&#10;2.VAD切分：用webrtcvad库先找有声段，去掉静音/空白，提高ASR和chunk的质量&#10;3.ASR转写：用faster-whisper对每个有声段转写，带时间戳&#10;4.合并成检索段：把ASR片段合并成适合检索的chunk，同时限制最大/小长度，尽量按标点收尾&#10;之后写db，chromadb，返回结果结束。&#10;然后本段做了大量调整，但是基本都集中在api上，我冲新设计了一下返回的api。&#10;这个api的改动只需要和前台对接好即可。不需要影响程序其他部分。" />
+    <option name="LAST_COMMIT_MESSAGE" value="1.转码标准化：任意音频 → wav 16kHz / mono（ffmpeg）&#10;2.VAD切分：用webrtcvad库先找有声段，去掉静音/空白，提高ASR和chunk的质量&#10;3.ASR转写：用faster-whisper对每个有声段转写，带时间戳&#10;4.合并成检索段：把ASR片段合并成适合检索的chunk，同时限制最大/小长度，尽量按标点收尾&#10;之后写db，chromadb，返回结果结束。&#10;然后本段做了大量调整，但是基本都集中在api上，我冲新设计了一下返回的api。&#10;这个api的改动只需要和前台对接好即可。不需要影响程序其他部分。" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/audio/audio_job_db.py</url>
+          <line>19</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$models.coverage" NAME="models 覆盖结果" MODIFIED="1765162030264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
@@ -343,7 +393,7 @@
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$ai_profiler.coverage" NAME="ai_profiler 覆盖结果" MODIFIED="1766070070377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_PLUGINS_DIR$/ai-debugger/python" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$1.coverage" NAME="1 覆盖结果" MODIFIED="1765278688301" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$build_index.coverage" NAME="build_index 覆盖结果" MODIFIED="1765883762817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/ingestion" />
-    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1767433751068" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/workflows" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1767871095697" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/workflows" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$config.coverage" NAME="config 覆盖结果" MODIFIED="1764470348410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$audio_api.coverage" NAME="audio_api 覆盖结果" MODIFIED="1766919595894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/web" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$deps.coverage" NAME="deps 覆盖结果" MODIFIED="1764560398365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />

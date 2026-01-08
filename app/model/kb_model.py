@@ -2,6 +2,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field
+#todo 你这段代码是 知识库文档（KB Documents）相关的 Pydantic 模型，主要用于接口请求/响应的验证和序列化。
 # app/model/kb_model.py
 # 下面的几个模型基本上都是数据库里查出来后，用户要用到的属性组成的。
 # 至于哪些内容会用到，要看后续代码，所以可能随时增加或者删除。

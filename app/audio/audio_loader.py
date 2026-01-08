@@ -3,8 +3,8 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from app.ingestion.asr import ASR
-
+from app.audio.asr import ASR
+#todo 是一个 音频处理 + ASR 转写小脚本
 
 def ensure_dir(p: Path) -> None:  # 确保路径存在
     p.mkdir(parents=True, exist_ok=True)

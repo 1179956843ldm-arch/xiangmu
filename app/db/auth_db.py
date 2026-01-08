@@ -2,7 +2,7 @@ from datetime import datetime
 from app.db.mysql import get_conn
 from app.model.auth_model import RegisterReq
 from app.service.auth_service import hash_password
-
+#todo 用户数据库操作模块，主要负责用户的查询、创建和登录时间更新
 
 def get_user_by_username(username: str) -> dict | None:
     sql = "SELECT * FROM users WHERE username=%s LIMIT 1"

@@ -1,3 +1,5 @@
+#todo 你这段代码主要是 封装 Chroma 向量数据库的连接与向量存储（VectorStore）获取，方便在项目中统一管理文档和音频的向量索引。
+
 #Chroma数据库连接：建立与Chroma向量数据库的HTTP客户端连接
 import chromadb
 from langchain_chroma import Chroma

@@ -5,7 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pypdf import PdfReader
 import docx
 from app.workflows.config import settings
-
+#todo 你这段代码是一个 文档加载 + 拆分 + 元数据增强 的工具模块
 def load_pdf(path: Path) -> List[Document]:
     reader = PdfReader(str(path))
     docs = []

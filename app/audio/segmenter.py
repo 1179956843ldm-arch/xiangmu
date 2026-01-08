@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
 
-from app.ingestion.asr import ASRSegment
-
+from app.audio.asr import ASRSegment
+#todo merge_by_max_duration 是一个 语音识别（ASR）片段合并算法，核心作用是把短小的 ASR 片段按时间合并成更合理的“块”，既保证块不太长，也避免块太短而零散
 
 @dataclass
 class Chunk:

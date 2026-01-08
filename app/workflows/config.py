@@ -19,9 +19,9 @@ class Settings(BaseModel):
     celery_broker_url: str = os.getenv("CELERY_BROKER_URL", "amqp://ldm:123@127.0.0.1:5672/%2F") # ⚠️改自己的用户名和密码
     celery_audio_queue: str = "audio"  # 消息队列的名字
 
-    audio_dir: str = "data/audio"
-    audio_wav_dir: str = "data/audio_wav"
-    audio_clip_dir: str = "data/audio_clips"
+    audio_dir: str = r"/home/ldm/PycharmProjects/enterprise-kb-assistant/data/audio"
+    audio_wav_dir: str = r"/home/ldm/PycharmProjects/enterprise-kb-assistant/data/audio_wav"
+    audio_clip_dir: str = r"/home/ldm/PycharmProjects/enterprise-kb-assistant/data/audio_clips"
     
     zhipu_base_url: str = os.getenv("ZHIPU_BASE_URL", "")
     zhipu_api_key: str = os.getenv("ZHIPU_API_KEY", "")

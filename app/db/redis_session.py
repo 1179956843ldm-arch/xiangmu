@@ -1,7 +1,7 @@
 import json
 import redis
 from typing import Any
-
+#todo 你这段代码实现了一个 基于 Redis 的轻量级会话存储机制
 r = redis.Redis(
     host="127.0.0.1",
     port=6379,

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import subprocess
 from pathlib import Path
-
+#todo 是一个 音频裁剪并导出 MP3 的工具函数
 def ensure_dir(p: Path) -> None:
     p.mkdir(parents=True, exist_ok=True)
 

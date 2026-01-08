@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 from app.db.mysql import get_conn
 
-
+#todo 你这一组函数是一个 完整的音频文档数据库操作集合，主要针对 audio_documents 和 audio_segments 两张表，提供 增删改查和状态管理 功能。
 def upsert_audio_document(
     *,
     audio_id: str,

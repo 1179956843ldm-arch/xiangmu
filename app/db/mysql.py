@@ -1,7 +1,7 @@
 import os
 import pymysql
 from contextlib import contextmanager
-
+#todo 实现了一个完整的 请假管理数据库层（Leave Requests DB Layer）
 MYSQL_HOST = os.getenv("MYSQL_HOST", "127.0.0.1")
 MYSQL_PORT = int(os.getenv("MYSQL_PORT", "3306"))
 MYSQL_USER = os.getenv("MYSQL_USER", "ldm")
