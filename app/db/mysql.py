@@ -1,144 +1,46 @@
 import os
 import pymysql
 from contextlib import contextmanager
-#todo 实现了一个完整的 请假管理数据库层（Leave Requests DB Layer）
+from dbutils.pooled_db import PooledDB
+
+# todo 实现了一个完整的 请假管理数据库层（Leave Requests DB Layer）
+
 MYSQL_HOST = os.getenv("MYSQL_HOST", "127.0.0.1")
 MYSQL_PORT = int(os.getenv("MYSQL_PORT", "3306"))
 MYSQL_USER = os.getenv("MYSQL_USER", "ldm")
 MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "123456")
 MYSQL_DB = os.getenv("MYSQL_DB", "enterprise_kb")
 
+# -----------------------------
+# 创建全局数据库连接池（关键）
+# -----------------------------
+POOL = PooledDB(
+    creator=pymysql,          # 使用的 DB API
+    maxconnections=10,        # 连接池最大连接数（很重要）
+    mincached=2,              # 启动时创建的空闲连接
+    maxcached=5,              # 连接池中最多空闲连接
+    blocking=True,            # 连接耗尽时是否阻塞等待
+    host=MYSQL_HOST,
+    port=MYSQL_PORT,
+    user=MYSQL_USER,
+    password=MYSQL_PASSWORD,
+    database=MYSQL_DB,
+    charset="utf8mb4",
+    cursorclass=pymysql.cursors.DictCursor,
+    autocommit=True,
+)
+
+# -----------------------------
+# 获取连接（从池中取）
+# -----------------------------
 @contextmanager
 def get_conn():
-    conn = pymysql.connect(
-        host=MYSQL_HOST, port=MYSQL_PORT,
-        user=MYSQL_USER, password=MYSQL_PASSWORD,
-        database=MYSQL_DB, charset="utf8mb4",
-        autocommit=True,
-        cursorclass=pymysql.cursors.DictCursor,
-    )
+    conn = POOL.connection()  # 不是新建，是“借用”
     try:
         yield conn
     finally:
-        conn.close()
+        conn.close()          # ⚠️ 不是关闭数据库，而是“归还连接”
 
 
-def get_leave_balance(requester: str) -> dict | None:
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "SELECT annual_days, sick_days, personal_days FROM leave_balances WHERE requester=%s",
-                (requester,)
-            )
-            return cur.fetchone()
 
 
-def insert_leave_request(req: dict) -> str:
-    """
-    req expects keys: leave_id, requester, leave_type, start_time, end_time, duration_days, reason
-    """
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                INSERT INTO leave_requests
-                (leave_id, requester, leave_type, start_time, end_time, duration_days, reason, status)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,'PENDING')
-                """,
-                (
-                    req["leave_id"], req["requester"], req["leave_type"],
-                    req["start_time"], req["end_time"], req["duration_days"],
-                    req.get("reason")
-                )
-            )
-    return req["leave_id"]
-
-
-def get_leave_request(leave_id: str) -> dict | None:
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM leave_requests WHERE leave_id=%s", (leave_id,))
-            return cur.fetchone()
-
-
-def cancel_leave_request(leave_id: str) -> bool:
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "UPDATE leave_requests SET status='CANCELLED' WHERE leave_id=%s AND status='PENDING'",
-                (leave_id,)
-            )
-            return cur.rowcount > 0
-
-# 数据库先行：pp/db/mysql.py新增
-def get_recent_leave_requests(requester: str, limit: int = 5) -> list[dict]:
-    limit = max(1, min(int(limit), 20))  # 我们查询的时候最多一次查询20条
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "SELECT leave_id, leave_type, start_time, end_time, duration_days, status, reason, created_at "
-                "FROM leave_requests WHERE requester=%s "
-                "ORDER BY id DESC LIMIT %s",
-                (requester, limit),
-            )
-            return cur.fetchall()
-
-def update_leave_request(leave_id: str, fields: dict) -> bool:
-    """
-    Only update PENDING requests.
-    fields can include: leave_type, start_time, end_time, duration_days, reason
-    """
-    allowed = {"leave_type", "start_time", "end_time", "duration_days", "reason"}
-    sets = []
-    params = []
-    for k, v in fields.items():
-        if k in allowed and v is not None:
-            sets.append(f"{k}=%s")  # sets=['leave_type=%s', 'end_time=%s']
-            params.append(v)  # params=['年假', 'xx年月日']
-
-    if not sets:
-        return False
-
-    params.extend([leave_id])
-    sql = (
-        "UPDATE leave_requests SET " + ", ".join(sets) +
-        " WHERE leave_id=%s AND status='PENDING'"
-    )
-
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(sql, tuple(params))
-            return cur.rowcount > 0
-
-def approve_leave_request(leave_id: str, approver: str) -> bool:
-    """
-    Approve a leave request.
-    Only PENDING requests can be approved.
-    Return True if updated, False otherwise.
-    """
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "UPDATE leave_requests SET status='APPROVED' "
-                "WHERE leave_id=%s AND status='PENDING'",
-                (leave_id,),
-            )
-            return cur.rowcount > 0
-
-
-def reject_leave_request(leave_id: str, approver: str, reason: str | None = None) -> bool:
-    """
-    Reject a leave request.
-    Only PENDING requests can be rejected.
-    Optionally override reason.
-    Return True if updated, False otherwise.
-    """
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "UPDATE leave_requests "
-                "SET status='REJECTED', reason=COALESCE(%s, reason) "
-                "WHERE leave_id=%s AND status='PENDING'",
-                (reason, leave_id),
-            )
-            return cur.rowcount > 0

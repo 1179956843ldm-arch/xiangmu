@@ -1,3 +1,4 @@
+dbutils
 booktype
 
 # --- web/api ---
@@ -40,3 +41,7 @@ amqp==5.3.1
 webrtcvad==2.0.10
 #这个库的作用主要是判断某个音频是不是语音，速度比较快只用cpu，其他依赖少。
 #不用识别内容，也不区分谁说话，只是简单的看空白部分。
+
+elasticsearch==9.2.1
+transformers>=4.40.0
+torch>=2.1.0

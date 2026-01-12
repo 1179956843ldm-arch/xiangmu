@@ -5,6 +5,7 @@ from typing import Any, Optional
 from app.db.mysql import get_conn
 
 #todo 你这一组函数是一个 完整的音频文档数据库操作集合，主要针对 audio_documents 和 audio_segments 两张表，提供 增删改查和状态管理 功能。
+
 def upsert_audio_document(
     *,
     audio_id: str,
@@ -71,6 +72,7 @@ def get_audio_document(audio_id: str) -> Optional[dict[str, Any]]:
             )
             return cur.fetchone()
 
+
 def get_audio_segment(audio_id: str, segment_idx: int):
     with get_conn() as conn:
         with conn.cursor() as cur:
@@ -80,6 +82,7 @@ def get_audio_segment(audio_id: str, segment_idx: int):
                 (audio_id, int(segment_idx)),
             )
             return cur.fetchone()
+
 
 def update_audio_status(audio_id: str, status: str) -> None:
     with get_conn() as conn:
@@ -102,3 +105,60 @@ def is_audio_running(audio_id: str) -> bool:
             cur.execute("SELECT status FROM audio_documents WHERE audio_id=%s LIMIT 1", (audio_id,))
             row = cur.fetchone()
             return bool(row and row.get("status") in ("queued", "running"))
+
+
+def list_audio_segments(audio_id: str) -> list[dict[str, Any]]:
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT audio_id, segment_idx, start_ms, end_ms, text "
+                "FROM audio_segments WHERE audio_id=%s ORDER BY segment_idx ASC",
+                (audio_id,),
+            )
+            return list(cur.fetchall() or [])
+
+
+def get_audio_transcript(audio_id: str) -> dict[str, Any]:
+    segs = list_audio_segments(audio_id)
+    lines: list[str] = []
+    for s in segs:
+        t = (s.get("text") or "").strip()
+        if t:
+            lines.append(t)
+    return {
+        "audio_id": audio_id,
+        "segment_count": len(segs),
+        "transcript": "\n".join(lines),
+    }
+
+
+def update_audio_visibility(audio_id: str, visibility: str) -> int:
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE audio_documents SET visibility=%s WHERE audio_id=%s",
+                (visibility, audio_id),
+            )
+            return int(cur.rowcount or 0)
+
+
+def delete_audio_document_cascade(audio_id: str) -> dict[str, int]:
+    """
+    Delete DB rows for this audio_id.
+    (vectors/files are handled elsewhere)
+    """
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM audio_segments WHERE audio_id=%s", (audio_id,))
+            seg_n = int(cur.rowcount or 0)
+
+            try:
+                cur.execute("DELETE FROM audio_jobs WHERE audio_id=%s", (audio_id,))
+                job_n = int(cur.rowcount or 0)
+            except Exception:
+                job_n = 0
+
+            cur.execute("DELETE FROM audio_documents WHERE audio_id=%s", (audio_id,))
+            doc_n = int(cur.rowcount or 0)
+
+    return {"documents": doc_n, "segments": seg_n, "jobs": job_n}

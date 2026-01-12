@@ -10,7 +10,7 @@ from app.web.auth_api import UserInDB, get_current_user
 from app.db import kb_db
 from app.ingestion.loader import load_single_file, split_with_visibility
 from app.service.rbac_service import check_permission
-from app.rag.chroma_admin import count_by_doc_id, delete_by_doc_id, update_visibility_by_doc_id
+from app.rag.chroma_admin_kb import count_by_doc_id, delete_by_doc_id, update_visibility_by_doc_id
 from app.model.kb_model import KBDocListItem, KBDocDetail, KBDocVisibilityUpdateReq, KBDocReembedResp, KBDocPageResp
 
 router = APIRouter(prefix="/kb", tags=["kb"])

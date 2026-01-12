@@ -65,3 +65,24 @@ class AudioJobResp(BaseModel):
     cancelled_at: Optional[Any] = None
     created_at: Optional[Any] = None
     updated_at: Optional[Any] = None
+
+
+class AudioAskReq(BaseModel):
+    question: str = Field(..., min_length=1)
+    k: int = Field(6, ge=1, le=20)
+    audio_id: Optional[str] = None  # 只问某条音频；不传就等于全库
+    system_prompt: Optional[str] = None  # 可选部分，用来覆盖默认system prompt
+
+class AudioCitation(BaseModel):
+    audio_id: str
+    segment_id: str
+    start_ms: int
+    end_ms: int
+    text: str
+    clip_url: str
+    score: Optional[float] = None
+
+class AudioAskResp(BaseModel):
+    question: str
+    answer: str
+    citations: List[AudioCitation]

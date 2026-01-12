@@ -17,7 +17,6 @@ def get_llm():
     )
 
 
-
     # 创建并返回一个 OpenAIEmbeddings 实例，用于文本向量化处理
 def get_embeddings():
     return ZhipuAIEmbeddings(

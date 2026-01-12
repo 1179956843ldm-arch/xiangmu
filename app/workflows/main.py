@@ -20,8 +20,10 @@ from app.service.rbac_service import check_permission
 from app.web.rbac_api import rbac_router
 from fastapi import Depends
 from app.web.kb_api import router as kb_router
-from app.rag.chroma_admin import count_by_doc_id
+from app.rag.chroma_admin_kb import count_by_doc_id
 from app.web.audio_api import router as audio_router
+from app.web.audio_admin_api import router as audio_admin_router
+
 app = FastAPI(title="Enterprise KB Assistant")
 app.include_router(auth_router)
 
@@ -30,6 +32,7 @@ app.include_router(kb_router)
 app.include_router(audio_router)
 
 app.include_router(rbac_router)
+app.include_router(audio_admin_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],          # 本地开发可以先全开，线上再收紧
@@ -137,7 +140,7 @@ async def ingest(file:UploadFile = File(...),
 
     # 3) 如果overwrite：现在再删旧的chroma chunks（此时新 chunks 已经准备好）
     if existed and overwrite:  # 旧文件要被覆盖，新文件也没问题，要彻底替换
-        from app.rag.chroma_admin import delete_by_doc_id
+        from app.rag.chroma_admin_kb import delete_by_doc_id
         delete_by_doc_id(doc_id)
 
     # 4) 写入向量库

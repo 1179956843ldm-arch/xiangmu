@@ -11,7 +11,7 @@ from app.prompts.parse_date_prompts import TIME_SYSTEM, TIME_USER
 from app.workflows.deps import get_llm
 from app.workflows.leave.models import LeaveState
 from app.workflows.leave.rules import validate_leave
-from app.db.mysql import (
+from app.db.leave_db import (
     get_leave_balance,
     insert_leave_request,
     get_leave_request,
