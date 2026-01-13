@@ -4,27 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="这个部分改动较多，将前面做了整合。8.2可以不用测试，直接在8.3李测试就可以了。&#10;1.转码标准化：任意音频 → wav 16kHz / mono（ffmpeg）mono是monophonic的缩写，意思是单声道&#10;2.VAD切分：用webrtcvad库先找有声段，去掉静音/空白，提高ASR和chunk的质量&#10;3.ASR转写：用faster-whisper对每个有声段转写，带时间戳&#10;4.合并成检索段：把ASR片段合并成适合检索的chunk，同时限制最大/小长度，尽量按标点收尾&#10;5.提供下载链接，以mp3的形式返回&#10;之后写db，chromadb，返回结果结束。&#10;然后本段做了大量调整，但是基本都集中在api上，我冲新设计了一下返回的api。&#10;这个api的改动只需要和前台对接好即可。不需要影响程序其他部分。">
-      <change afterPath="$PROJECT_DIR$/app/db/leave_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/model/audio_admin_model.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/rag/chroma.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/rag/chroma_admin_audio.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/rag/chroma_admin_kb.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/scripts/reset_audio_collection.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/service/rbac_check_permission.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/web/audio_admin_api.py" afterDir="false" />
+    <list default="true" id="b8e1046d-3347-4449-ba67-93b59034764d" name="更改" comment="v8.6 &#10;1. SSE流式输出 /audio/ask/stream&#10;SSE是Server-Sent Events服务器推送事件。前端用EventSource或fetch+stream接收。&#10;特点是单向，即server到客户端，可以保持丽娜姐，server不断的数据推送。&#10;前端那边主要是可以让用户看到“xxxx在打字”类似的效果。&#10;我们这里给前端一个边生成边返回的问答接口，通常用于RAG检索音频片段加上LLM生成答案，并将答案/引用片段实时推送到前端。&#10;&#10;2. /audio/docs/{audio_id}/segments&#10;返回某个音频文档的分段列表segments。&#10;给前端做时间轴，即按时间排列段落&#10;做全文展开，即每段一小块，点击定位播放&#10;做检索命中定位，即从ask/stream返回的segment_id直接滚动到这段&#10;&#10;&#10;3. /audio/docs/{audio_id}/transcript（拼完整转写）&#10;把/segments里的文本按segment_idx或start_ms依次拼起来，返回一份完整转写transcript&#10;前端那边经常需要“查看全文”或者“复制全文”，或者下载成文本、做摘要、做二次编辑。可用于搜索页面：浏览器内查找关键词&#10;和上面第二点的区别：/segments是结构化的，/transcript是整合后的纯文本，更适合阅读/复制）&#10;&#10;&#10;4. DELETE /audio/docs/{audio_id}（删 DB + 删向量 + 删原始音频 + 删 clip）&#10;5. POST /audio/docs/{audio_id}/reindex（重建向量/分段，修复用）&#10;&#10;6. 彻底消灭孤儿向量导致clip 404（delete/reindex/overwrite 都会先清向量）&#10;孤儿向量orphan vectors指的是：向量库里还保留着某些segment_id的向量，但数据库里的segments记录已经没有了、或音频文件/clip已被删了&#10;这样就会出现个问题，比如检索命中这个segment，然后前端拿到clip_url播放，但是此时后端找不到对应文件/段导致404&#10;&#10;这里所谓的先清向量主要是因为向量命中是入口，用户问答时先向量检索，命中什么就会去取什么segment/clip。&#10;只要我们保证任何会改变segments的操作（删除、覆盖、重建）都先delete_by_audio_id(audio_id)然后再写入与DB一致的新向量&#10;那么向量库不会残留旧的segment_id，自然不会命中“已不存在”的片段，也就不会出现clip 404。">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/audio/audio_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/audio/audio_db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/db/mysql.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/mysql.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/model/audio_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/audio_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/rag/chroma_admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/tasks/audio_tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/tasks/audio_tasks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/web/audio_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/web/audio_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/web/kb_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/web/kb_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/workflows/deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/deps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/workflows/leave/leave_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/leave/leave_graph.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/workflows/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/workflows/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,7 +82,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;v8.5&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;v8.6&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/ldm/PycharmProjects/enterprise-kb-assistant/data/docs&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -127,11 +110,11 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/data" />
       <recent name="$PROJECT_DIR$/app/audio" />
       <recent name="$PROJECT_DIR$/app/model" />
       <recent name="$PROJECT_DIR$/app/web" />
       <recent name="$PROJECT_DIR$/app/tools" />
-      <recent name="$PROJECT_DIR$/app/service" />
     </key>
   </component>
   <component name="RunManager">
@@ -228,7 +211,10 @@
       <workItem from="1768207535267" duration="1937000" />
       <workItem from="1768209624377" duration="538000" />
       <workItem from="1768210622221" duration="1514000" />
-      <workItem from="1768212594944" duration="4093000" />
+      <workItem from="1768212594944" duration="5023000" />
+      <workItem from="1768220833725" duration="303000" />
+      <workItem from="1768221421233" duration="2206000" />
+      <workItem from="1768281819806" duration="3180000" />
     </task>
     <task id="LOCAL-00001" summary="项目初建">
       <option name="closed" value="true" />
@@ -342,7 +328,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767872030517</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="v8.6 &#10;1. SSE流式输出 /audio/ask/stream&#10;SSE是Server-Sent Events服务器推送事件。前端用EventSource或fetch+stream接收。&#10;特点是单向，即server到客户端，可以保持丽娜姐，server不断的数据推送。&#10;前端那边主要是可以让用户看到“xxxx在打字”类似的效果。&#10;我们这里给前端一个边生成边返回的问答接口，通常用于RAG检索音频片段加上LLM生成答案，并将答案/引用片段实时推送到前端。&#10;&#10;2. /audio/docs/{audio_id}/segments&#10;返回某个音频文档的分段列表segments。&#10;给前端做时间轴，即按时间排列段落&#10;做全文展开，即每段一小块，点击定位播放&#10;做检索命中定位，即从ask/stream返回的segment_id直接滚动到这段&#10;&#10;&#10;3. /audio/docs/{audio_id}/transcript（拼完整转写）&#10;把/segments里的文本按segment_idx或start_ms依次拼起来，返回一份完整转写transcript&#10;前端那边经常需要“查看全文”或者“复制全文”，或者下载成文本、做摘要、做二次编辑。可用于搜索页面：浏览器内查找关键词&#10;和上面第二点的区别：/segments是结构化的，/transcript是整合后的纯文本，更适合阅读/复制）&#10;&#10;&#10;4. DELETE /audio/docs/{audio_id}（删 DB + 删向量 + 删原始音频 + 删 clip）&#10;5. POST /audio/docs/{audio_id}/reindex（重建向量/分段，修复用）&#10;&#10;6. 彻底消灭孤儿向量导致clip 404（delete/reindex/overwrite 都会先清向量）&#10;孤儿向量orphan vectors指的是：向量库里还保留着某些segment_id的向量，但数据库里的segments记录已经没有了、或音频文件/clip已被删了&#10;这样就会出现个问题，比如检索命中这个segment，然后前端拿到clip_url播放，但是此时后端找不到对应文件/段导致404&#10;&#10;这里所谓的先清向量主要是因为向量命中是入口，用户问答时先向量检索，命中什么就会去取什么segment/clip。&#10;只要我们保证任何会改变segments的操作（删除、覆盖、重建）都先delete_by_audio_id(audio_id)然后再写入与DB一致的新向量&#10;那么向量库不会残留旧的segment_id，自然不会命中“已不存在”的片段，也就不会出现clip 404。">
+      <option name="closed" value="true" />
+      <created>1768218740025</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1768218740025</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -375,7 +369,8 @@
     <MESSAGE value="这个版本主要做了一个按时间区间/按段落ID裁剪音频，并以mp3返回的后端代码&#10;主要用于音频检索/播放或标注场景里后面点一下就听某一段的需求&#10;把音频入库改成异步任务，否则一段长音频会卡死HTTP请求，也很难做失败重试/状态展示。" />
     <MESSAGE value="1.转码标准化：任意音频 → wav 16kHz / mono（ffmpeg）&#10;2.VAD切分：用webrtcvad库先找有声段，去掉静音/空白，提高ASR和chunk的质量&#10;3.ASR转写：用faster-whisper对每个有声段转写，带时间戳&#10;4.合并成检索段：把ASR片段合并成适合检索的chunk，同时限制最大/小长度，尽量按标点收尾&#10;之后写db，chromadb，返回结果结束。&#10;然后本段做了大量调整，但是基本都集中在api上，我冲新设计了一下返回的api。&#10;这个api的改动只需要和前台对接好即可。不需要影响程序其他部分。" />
     <MESSAGE value="这个部分改动较多，将前面做了整合。8.2可以不用测试，直接在8.3李测试就可以了。&#10;1.转码标准化：任意音频 → wav 16kHz / mono（ffmpeg）mono是monophonic的缩写，意思是单声道&#10;2.VAD切分：用webrtcvad库先找有声段，去掉静音/空白，提高ASR和chunk的质量&#10;3.ASR转写：用faster-whisper对每个有声段转写，带时间戳&#10;4.合并成检索段：把ASR片段合并成适合检索的chunk，同时限制最大/小长度，尽量按标点收尾&#10;5.提供下载链接，以mp3的形式返回&#10;之后写db，chromadb，返回结果结束。&#10;然后本段做了大量调整，但是基本都集中在api上，我冲新设计了一下返回的api。&#10;这个api的改动只需要和前台对接好即可。不需要影响程序其他部分。" />
-    <option name="LAST_COMMIT_MESSAGE" value="这个部分改动较多，将前面做了整合。8.2可以不用测试，直接在8.3李测试就可以了。&#10;1.转码标准化：任意音频 → wav 16kHz / mono（ffmpeg）mono是monophonic的缩写，意思是单声道&#10;2.VAD切分：用webrtcvad库先找有声段，去掉静音/空白，提高ASR和chunk的质量&#10;3.ASR转写：用faster-whisper对每个有声段转写，带时间戳&#10;4.合并成检索段：把ASR片段合并成适合检索的chunk，同时限制最大/小长度，尽量按标点收尾&#10;5.提供下载链接，以mp3的形式返回&#10;之后写db，chromadb，返回结果结束。&#10;然后本段做了大量调整，但是基本都集中在api上，我冲新设计了一下返回的api。&#10;这个api的改动只需要和前台对接好即可。不需要影响程序其他部分。" />
+    <MESSAGE value="v8.6 &#10;1. SSE流式输出 /audio/ask/stream&#10;SSE是Server-Sent Events服务器推送事件。前端用EventSource或fetch+stream接收。&#10;特点是单向，即server到客户端，可以保持丽娜姐，server不断的数据推送。&#10;前端那边主要是可以让用户看到“xxxx在打字”类似的效果。&#10;我们这里给前端一个边生成边返回的问答接口，通常用于RAG检索音频片段加上LLM生成答案，并将答案/引用片段实时推送到前端。&#10;&#10;2. /audio/docs/{audio_id}/segments&#10;返回某个音频文档的分段列表segments。&#10;给前端做时间轴，即按时间排列段落&#10;做全文展开，即每段一小块，点击定位播放&#10;做检索命中定位，即从ask/stream返回的segment_id直接滚动到这段&#10;&#10;&#10;3. /audio/docs/{audio_id}/transcript（拼完整转写）&#10;把/segments里的文本按segment_idx或start_ms依次拼起来，返回一份完整转写transcript&#10;前端那边经常需要“查看全文”或者“复制全文”，或者下载成文本、做摘要、做二次编辑。可用于搜索页面：浏览器内查找关键词&#10;和上面第二点的区别：/segments是结构化的，/transcript是整合后的纯文本，更适合阅读/复制）&#10;&#10;&#10;4. DELETE /audio/docs/{audio_id}（删 DB + 删向量 + 删原始音频 + 删 clip）&#10;5. POST /audio/docs/{audio_id}/reindex（重建向量/分段，修复用）&#10;&#10;6. 彻底消灭孤儿向量导致clip 404（delete/reindex/overwrite 都会先清向量）&#10;孤儿向量orphan vectors指的是：向量库里还保留着某些segment_id的向量，但数据库里的segments记录已经没有了、或音频文件/clip已被删了&#10;这样就会出现个问题，比如检索命中这个segment，然后前端拿到clip_url播放，但是此时后端找不到对应文件/段导致404&#10;&#10;这里所谓的先清向量主要是因为向量命中是入口，用户问答时先向量检索，命中什么就会去取什么segment/clip。&#10;只要我们保证任何会改变segments的操作（删除、覆盖、重建）都先delete_by_audio_id(audio_id)然后再写入与DB一致的新向量&#10;那么向量库不会残留旧的segment_id，自然不会命中“已不存在”的片段，也就不会出现clip 404。" />
+    <option name="LAST_COMMIT_MESSAGE" value="v8.6 &#10;1. SSE流式输出 /audio/ask/stream&#10;SSE是Server-Sent Events服务器推送事件。前端用EventSource或fetch+stream接收。&#10;特点是单向，即server到客户端，可以保持丽娜姐，server不断的数据推送。&#10;前端那边主要是可以让用户看到“xxxx在打字”类似的效果。&#10;我们这里给前端一个边生成边返回的问答接口，通常用于RAG检索音频片段加上LLM生成答案，并将答案/引用片段实时推送到前端。&#10;&#10;2. /audio/docs/{audio_id}/segments&#10;返回某个音频文档的分段列表segments。&#10;给前端做时间轴，即按时间排列段落&#10;做全文展开，即每段一小块，点击定位播放&#10;做检索命中定位，即从ask/stream返回的segment_id直接滚动到这段&#10;&#10;&#10;3. /audio/docs/{audio_id}/transcript（拼完整转写）&#10;把/segments里的文本按segment_idx或start_ms依次拼起来，返回一份完整转写transcript&#10;前端那边经常需要“查看全文”或者“复制全文”，或者下载成文本、做摘要、做二次编辑。可用于搜索页面：浏览器内查找关键词&#10;和上面第二点的区别：/segments是结构化的，/transcript是整合后的纯文本，更适合阅读/复制）&#10;&#10;&#10;4. DELETE /audio/docs/{audio_id}（删 DB + 删向量 + 删原始音频 + 删 clip）&#10;5. POST /audio/docs/{audio_id}/reindex（重建向量/分段，修复用）&#10;&#10;6. 彻底消灭孤儿向量导致clip 404（delete/reindex/overwrite 都会先清向量）&#10;孤儿向量orphan vectors指的是：向量库里还保留着某些segment_id的向量，但数据库里的segments记录已经没有了、或音频文件/clip已被删了&#10;这样就会出现个问题，比如检索命中这个segment，然后前端拿到clip_url播放，但是此时后端找不到对应文件/段导致404&#10;&#10;这里所谓的先清向量主要是因为向量命中是入口，用户问答时先向量检索，命中什么就会去取什么segment/clip。&#10;只要我们保证任何会改变segments的操作（删除、覆盖、重建）都先delete_by_audio_id(audio_id)然后再写入与DB一致的新向量&#10;那么向量库不会残留旧的segment_id，自然不会命中“已不存在”的片段，也就不会出现clip 404。" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -400,9 +395,9 @@
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$ai_profiler.coverage" NAME="ai_profiler 覆盖结果" MODIFIED="1766070070377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_PLUGINS_DIR$/ai-debugger/python" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$1.coverage" NAME="1 覆盖结果" MODIFIED="1765278688301" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$build_index.coverage" NAME="build_index 覆盖结果" MODIFIED="1765883762817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/ingestion" />
-    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1768213266879" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/workflows" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$main.coverage" NAME="main 覆盖结果" MODIFIED="1768288014879" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/workflows" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$config.coverage" NAME="config 覆盖结果" MODIFIED="1764470348410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
-    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$audio_api.coverage" NAME="audio_api 覆盖结果" MODIFIED="1766919595894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/web" />
+    <SUITE FILE_PATH="coverage/enterprise_kb_assistant$audio_api.coverage" NAME="audio_api 覆盖结果" MODIFIED="1768221810129" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/web" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$deps.coverage" NAME="deps 覆盖结果" MODIFIED="1764560398365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$2.coverage" NAME="2 覆盖结果" MODIFIED="1765248644008" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/enterprise_kb_assistant$leave_graph.coverage" NAME="leave_graph 覆盖结果" MODIFIED="1765162024089" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/workflows/leave" />

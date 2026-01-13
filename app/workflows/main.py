@@ -26,11 +26,8 @@ from app.web.audio_admin_api import router as audio_admin_router
 
 app = FastAPI(title="Enterprise KB Assistant")
 app.include_router(auth_router)
-
 app.include_router(kb_router)
-
 app.include_router(audio_router)
-
 app.include_router(rbac_router)
 app.include_router(audio_admin_router)
 app.add_middleware(

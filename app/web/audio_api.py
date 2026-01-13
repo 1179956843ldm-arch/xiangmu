@@ -7,22 +7,23 @@ from typing import List, Optional, Any, Iterable, Iterator
 import httpx
 from fastapi import (APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, Request, UploadFile,)
 from fastapi.responses import FileResponse,StreamingResponse
+from langchain_core.messages import SystemMessage, HumanMessage
 from openai import OpenAI
 
 from app.web.auth_api import UserInDB, get_current_user
 from app.audio.audio_tool import clip_audio_to_mp3
 from app.workflows.config import settings
 from app.audio import audio_db, audio_job_db
-from app.workflows.deps import get_audio_vs
+from app.workflows.deps import get_audio_vs, get_llm
 from app.model.audio_model import AudioIngestAsyncResp, AudioJobResp, AudioDocDetail, AudioSearchResp, AudioSearchHit,AudioAskResp,AudioCitation,AudioAskReq
 from app.service.rbac_service import allowed_kb_visibilities, check_permission
 from app.tasks.audio_tasks import audio_ingest_task, audio_reindex_task
 from app.rag.chroma_admin_audio import delete_by_audio_id
-WAV_DIR = Path(settings.audio_wav_dir)
 router = APIRouter(prefix="/audio", tags=["audio"])
 
 AUDIO_DIR = Path(getattr(settings, "audio_dir", "data/audio"))
 CLIP_DIR = Path(getattr(settings, "audio_clip_dir", "data/audio_clips"))
+WAV_DIR = Path(getattr(settings,"audio_wav_dir","data/audio_wav"))
 
 def _require_manage_docs(user: UserInDB) -> None:
     check_permission(user, "kb.manage_docs")
@@ -30,10 +31,23 @@ def _require_manage_docs(user: UserInDB) -> None:
 
 def _normalize_visibility(v: str) -> str:
     v = (v or "").strip().lower()
-    if v in ("public", "internal"):
-        return v
-    return "public"
+    return v if v in ("public", "internal") else "public"
 
+def _get_allowed_and_check(user: UserInDB, doc_visibility: Optional[str] = None) -> List[str]:
+    perms = getattr(user, "permissions", None)
+    allowed = allowed_kb_visibilities(perms)
+    if "public" not in allowed:
+        allowed = ["public"] + [x for x in allowed if x != "public"]
+
+    if doc_visibility:
+        vis = (doc_visibility or "").strip().lower()
+        if vis not in set(allowed):
+            raise HTTPException(status_code=403, detail="no permission to access this audio")
+
+    return allowed
+
+def _get_allowed_set(user: UserInDB) -> set[str]:
+    return set(_get_allowed_and_check(user))
 
 def _compute_allowed_visibilities(user: UserInDB) -> List[str]:
     perms = getattr(user, "permissions", None)
@@ -57,23 +71,41 @@ def _absolute_base(request: Request) -> str:
 def _clip_url(base: str, audio_id: str, start_ms: int, end_ms: int) -> str:
     return f"{base}/audio/docs/{audio_id}/clip?start_ms={start_ms}&end_ms={end_ms}"
 
-def _openai_chat_complete(*, model: str, api_key: str, messages: list[dict[str, str]], timeout_s: float = 60.0) -> str:
-    url = "https://api.openai.com/v1/chat/completions"
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": 0.2,
-    }
-    with httpx.Client(timeout=timeout_s) as client:
-        r = client.post(url, headers=headers, json=payload)
-        if r.status_code >= 400:
-            raise HTTPException(status_code=500, detail=f"OpenAI error: {r.status_code} {r.text[:300]}")
-        data = r.json()
+def _build_langchain_messages(messages: list[dict[str, str]]):
+    """
+    将我们自己构造的message转换成langchain能识别的消息对象列表，是一个小的工具类
+    这里的message本意是这样的
+    [
+        {"role": "system", "content": "你是一个音频问答助手。"},
+        {"role": "user", "content": "请根据音频内容回答问题。"}
+    ]
+    """
+    msg_objs = []
+    for m in messages:
+        role = m.get("role", "")
+        content = m.get("content", "")
+        msg_objs.append(
+            SystemMessage(content=content) if role == "system" else HumanMessage(content=content)
+        )
+    return msg_objs
+
+def _openai_chat_complete(*, messages: list[dict[str, str]]) -> str:
+    llm = get_llm()
     try:
-        return (data["choices"][0]["message"]["content"] or "").strip()
-    except Exception:
-        raise HTTPException(status_code=500, detail="OpenAI response parse error")
+        result = llm.invoke(_build_langchain_messages(messages))
+        return (result.content or "").strip()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LLM 调用出错: {e}")
+
+def _openai_stream(*, messages: list[dict[str, str]]) -> Iterable[str]:
+    """参数和之前的一样，返回值是Iterable[str]，主要我们后面用yield流式输出做好基础"""
+    llm = get_llm()
+    try:
+        for chunk in llm.stream(_build_langchain_messages(messages)):
+            if chunk.content:
+                yield chunk.content
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LLM 流式调用出错: {e}")
 
 def _build_rag_messages(question: str, citations: list[AudioCitation], system_prompt: Optional[str]) -> list[
     dict[str, str]]:
@@ -83,29 +115,71 @@ def _build_rag_messages(question: str, citations: list[AudioCitation], system_pr
         "回答要简洁，并在结尾给出引用列表（用 [1][2]... 标注）。"
     )
 
-    ctx_lines: list[str] = []
-    for i, c in enumerate(citations, start=1):
-        ctx_lines.append(
-            f"[{i}] audio_id={c.audio_id} segment_id={c.segment_id} "
-            f"start_ms={c.start_ms} end_ms={c.end_ms}\n"
-            f"片段文本：{c.text}"
-        )
+    ctx_lines = [
+        f"[{i}] audio_id={c.audio_id} segment_id={c.segment_id} "
+        f"start_ms={c.start_ms} end_ms={c.end_ms}\n片段文本：{c.text}"
+        for i, c in enumerate(citations, start=1)
+    ]
     ctx = "\n\n".join(ctx_lines) if ctx_lines else "（无片段）"
 
     user = (
         f"问题：{question}\n\n"
         f"【音频片段】\n{ctx}\n\n"
-        "要求：\n"
-        "1) 只用片段信息回答。\n"
-
+        "要求：\n1) 只用片段信息回答。\n"
         "2) 如果引用了某个片段，请用 [序号] 标注。\n"
         "3) 不要编造片段里没有的信息。"
     )
 
-    return [
-        {"role": "system", "content": sys},
-        {"role": "user", "content": user},
-    ]
+    return [{"role": "system", "content": sys}, {"role": "user", "content": user}]
+
+def _search_audio_segments(vs, query: str, allowed_vis: list[str], k: int, audio_id: Optional[str] = None):
+    where = {"visibility": {"$in": allowed_vis}}
+    if audio_id:
+        where = {"$and": [{"visibility": {"$in": allowed_vis}}, {"audio_id": audio_id}]}
+    fetch_k = min(max(k * 5, k), 50)
+    return vs.similarity_search_with_score(query, k=fetch_k, filter=where)
+
+
+def _build_audio_hits(docs_scores, allowed_vis_set: set[str], base: str, mode: str = "hit"):
+    """把向量搜索结果docs_scores转换成业务层能用的结构AudioSearchHit或AudioCitation"""
+    results, seen = [], set()  # seen用于防止重复片段，比如多个检索结果指向相同音频区间
+    for doc, score in docs_scores:
+        md = doc.metadata or {}
+        audio_id = str(md.get("audio_id") or "").strip()
+        segment_id = str(md.get("segment_id") or "").strip()
+        if not (audio_id and segment_id):
+            continue
+        try:
+            start_ms, end_ms = int(md.get("start_ms", 0)), int(md.get("end_ms", 0))
+        except Exception:
+            continue
+        if start_ms < 0 or end_ms <= start_ms:
+            continue
+        key = (audio_id, segment_id, start_ms, end_ms)
+        if key in seen:
+            continue
+        seen.add(key)  # 生成唯一key，即同一个片段唯一标识，所以这里用了set集合
+        db_doc = audio_db.get_audio_document(audio_id)
+        if not db_doc:
+            continue
+        if (db_doc.get("visibility") or "").strip().lower() not in allowed_vis_set:
+            continue
+        text = (doc.page_content or "").strip()
+        if mode == "hit":  # hit搜索结果列表/query，返回AudioSearchHit
+            results.append(AudioSearchHit(
+                audio_id=audio_id, segment_id=segment_id,
+                start_ms=start_ms, end_ms=end_ms, text=text,
+                score=float(score) if score is not None else None,
+                clip_url=_clip_url(base, audio_id, start_ms, end_ms)
+            ))
+        else: # citation问答引用/ask/stream接口，结果是AudioCitation
+            results.append(AudioCitation(
+                audio_id=audio_id, segment_id=segment_id,
+                start_ms=start_ms, end_ms=end_ms, text=text,
+                clip_url=_clip_url(base, audio_id, start_ms, end_ms),
+                score=float(score) if score is not None else None
+            ))
+    return results
 
 # =========================
 # V1: ingest/job/doc/query/ask/clip
@@ -219,89 +293,107 @@ def get_audio_doc(
         raise HTTPException(status_code=404, detail="audio not found")
     return row
 
-#todo 音频查询 (/audio/query)
+# todo 音频查询 (/audio/query)
+# @router.get("/query", response_model=AudioSearchResp)
+# def query_audio(
+#     request: Request,
+#     q: str = Query(..., min_length=1),
+#     k: int = Query(6, ge=1, le=20),
+#     current_user: UserInDB = Depends(get_current_user),
+# ) -> AudioSearchResp:
+#     allowed_vis = _compute_allowed_visibilities(current_user)
+#     allowed_vis_set = set(allowed_vis)
+#
+#     vs = get_audio_vs()
+#     base = _absolute_base(request)
+#
+#     fetch_k = min(max(k * 5, k), 50)
+#     where = {"visibility": {"$in": allowed_vis}}
+#
+#     try:
+#         docs_scores = vs.similarity_search_with_score(q, k=fetch_k, filter=where)
+#     except TypeError:
+#         docs_scores = vs.similarity_search_with_score(q, k=fetch_k, where=where)
+#
+#     hits: list[AudioSearchHit] = []
+#     seen: set[tuple[str, str, int, int]] = set()
+#
+#     for doc, score in docs_scores:
+#         md = doc.metadata or {}
+#         audio_id = str(md.get("audio_id") or "").strip()
+#         segment_id = str(md.get("segment_id") or "").strip()
+#         if not audio_id or not segment_id:
+#             continue
+#
+#         try:
+#             start_ms = int(md.get("start_ms") or 0)
+#             end_ms = int(md.get("end_ms") or 0)
+#         except Exception:
+#             continue
+#         if start_ms < 0 or end_ms <= start_ms:
+#             continue
+#
+#         key = (audio_id, segment_id, start_ms, end_ms)
+#         if key in seen:
+#             continue
+#         seen.add(key)
+#
+#         db_doc = audio_db.get_audio_document(audio_id)
+#         if not db_doc:
+#             continue
+#
+#         doc_vis = (db_doc.get("visibility") or "").strip().lower()
+#         if doc_vis not in allowed_vis_set:
+#             continue
+#
+#         clip_url = _clip_url(base, audio_id, start_ms, end_ms)
+#         text = (doc.page_content or "").strip()
+#
+#         hits.append(
+#             AudioSearchHit(
+#                 audio_id=audio_id,
+#                 segment_id=segment_id,
+#                 start_ms=start_ms,
+#                 end_ms=end_ms,
+#                 text=text,
+#                 score=float(score) if score is not None else None,
+#                 clip_url=clip_url,
+#             )
+#         )
+#         if len(hits) >= k:
+#             break
+#
+#     return AudioSearchResp(q=q, k=k, allowed_visibilities=allowed_vis, hits=hits)
 @router.get("/query", response_model=AudioSearchResp)
 def query_audio(
-    request: Request,
-    q: str = Query(..., min_length=1),
-    k: int = Query(6, ge=1, le=20),
-    current_user: UserInDB = Depends(get_current_user),
+        request: Request,
+        q: str = Query(..., min_length=1),
+        k: int = Query(6, ge=1, le=20),
+        current_user: UserInDB = Depends(get_current_user),
 ) -> AudioSearchResp:
-    allowed_vis = _compute_allowed_visibilities(current_user)
+    allowed_vis = _get_allowed_and_check(current_user)
     allowed_vis_set = set(allowed_vis)
-
     vs = get_audio_vs()
     base = _absolute_base(request)
 
-    fetch_k = min(max(k * 5, k), 50)
-    where = {"visibility": {"$in": allowed_vis}}
-
-    try:
-        docs_scores = vs.similarity_search_with_score(q, k=fetch_k, filter=where)
-    except TypeError:
-        docs_scores = vs.similarity_search_with_score(q, k=fetch_k, where=where)
-
-    hits: list[AudioSearchHit] = []
-    seen: set[tuple[str, str, int, int]] = set()
-
-    for doc, score in docs_scores:
-        md = doc.metadata or {}
-        audio_id = str(md.get("audio_id") or "").strip()
-        segment_id = str(md.get("segment_id") or "").strip()
-        if not audio_id or not segment_id:
-            continue
-
-        try:
-            start_ms = int(md.get("start_ms") or 0)
-            end_ms = int(md.get("end_ms") or 0)
-        except Exception:
-            continue
-        if start_ms < 0 or end_ms <= start_ms:
-            continue
-
-        key = (audio_id, segment_id, start_ms, end_ms)
-        if key in seen:
-            continue
-        seen.add(key)
-
-        db_doc = audio_db.get_audio_document(audio_id)
-        if not db_doc:
-            continue
-
-        doc_vis = (db_doc.get("visibility") or "").strip().lower()
-        if doc_vis not in allowed_vis_set:
-            continue
-
-        clip_url = _clip_url(base, audio_id, start_ms, end_ms)
-        text = (doc.page_content or "").strip()
-
-        hits.append(
-            AudioSearchHit(
-                audio_id=audio_id,
-                segment_id=segment_id,
-                start_ms=start_ms,
-                end_ms=end_ms,
-                text=text,
-                score=float(score) if score is not None else None,
-                clip_url=clip_url,
-            )
-        )
-        if len(hits) >= k:
-            break
+    docs_scores = _search_audio_segments(vs, q, allowed_vis, k)
+    hits = _build_audio_hits(docs_scores, allowed_vis_set, base, mode="hit")
 
     return AudioSearchResp(q=q, k=k, allowed_visibilities=allowed_vis, hits=hits)
 
 
-# ⚠️位了兼容老借口，调用一下之前的query就可以了，项目中经常这样做委托
+# # ⚠️位了兼容老借口，调用一下之前的query就可以了，项目中经常这样做委托
+# @router.get("/search", response_model=AudioSearchResp)
+# def search_audio(
+#     request: Request,
+#     q: str = Query(..., min_length=1),
+#     k: int = Query(6, ge=1, le=20),
+#     current_user: UserInDB = Depends(get_current_user),
+# ) -> AudioSearchResp:
+#     return query_audio(request=request, q=q, k=k, current_user=current_user)
 @router.get("/search", response_model=AudioSearchResp)
-def search_audio(
-    request: Request,
-    q: str = Query(..., min_length=1),
-    k: int = Query(6, ge=1, le=20),
-    current_user: UserInDB = Depends(get_current_user),
-) -> AudioSearchResp:
-    return query_audio(request=request, q=q, k=k, current_user=current_user)
-
+def search_audio(*args, **kwargs):
+    return query_audio(*args, **kwargs)
 
 @router.post("/ask", response_model=AudioAskResp)
 def ask_audio(req: AudioAskReq, request: Request, current_user: UserInDB = Depends(get_current_user)) -> AudioAskResp:
@@ -443,7 +535,11 @@ def get_audio_clip(
     except Exception:
         raise HTTPException(status_code=500, detail="failed to generate clip")
 
-    background_tasks.add_task(lambda p=str(clip_path): Path(p).unlink(missing_ok=True))
+    background_tasks.add_task(lambda p=str(clip_path): Path(p).unlink(missing_ok=True))     # FastAPI 的 BackgroundTasks 行为是：响应返回给客户端之后，立即执行后台任务
+                                                                                            # 1. ffmpeg 切出 mp3 → 写入 data/audio_clips/xxx.mp3
+                                                                                            # 2. FileResponse 把文件流式返回给客户端
+                                                                                            # 3. 响应完成
+                                                                                            # 4. 后台任务执行 → unlink() → 文件被删除 ❌
 
     return FileResponse(path=str(clip_path), media_type="audio/mpeg", filename=clip_name)
 # =========================
@@ -588,50 +684,6 @@ def _sse(event: str, data: Any) -> bytes:                   #todo _sse 把一个
     return f"event: {event}\ndata: {payload}\n\n".encode("utf-8")
 
 
-def _openai_stream(                                         #todo 这个函数通过 HTTP 直连 OpenAI 的 chat/completions 流式接口，手动解析 SSE 数据流，把模型每次生成的一小段文本 yield 出来。
-    *,
-    api_key: str,
-    model: str,
-    messages: list[dict[str, str]],
-    timeout_s: float = 120.0,
-) -> Iterable[str]:
-    """
-    Yield token strings from OpenAI ChatCompletions stream.
-    """
-    url = "https://api.openai.com/v1/chat/completions"
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": 0.2,
-        "stream": True,
-    }
-
-    with httpx.Client(timeout=timeout_s) as client:
-        with client.stream("POST", url, headers=headers, json=payload) as r:
-            if r.status_code >= 400:
-                text = r.read().decode("utf-8", errors="ignore")
-                raise RuntimeError(f"OpenAI error: {r.status_code} {text[:300]}")
-
-            for line in r.iter_lines():
-                if not line:
-                    continue
-                if line.startswith("data: "):
-                    raw = line[len("data: ") :].strip()
-                else:
-                    continue
-
-                if raw == "[DONE]":
-                    break
-
-                try:
-                    obj = json.loads(raw)
-                    delta = obj["choices"][0]["delta"]
-                    content = delta.get("content")
-                    if content:
-                        yield str(content)
-                except Exception:
-                    continue
 
 
 @router.post("/ask/stream")
@@ -640,164 +692,195 @@ def _openai_stream(                                         #todo 这个函数�
 # 在真正调用 DeepSeek 之前，
 # 把“能用于回答问题的音频片段（citations）”安全、准确地找出来。
 
-def ask_audio_stream(req: AudioAskReq, request: Request, current_user: UserInDB = Depends(get_current_user)):
-    question = (req.question or "").strip()
-    k = max(1, min(int(req.k or 6), 20))
+# def ask_audio_stream(req: AudioAskReq, request: Request, current_user: UserInDB = Depends(get_current_user)):
+#     question = (req.question or "").strip()
+#     k = max(1, min(int(req.k or 6), 20))
+#     if not question:
+#         raise HTTPException(status_code=400, detail="question is empty")
+#
+#     allowed_vis = _compute_allowed_visibilities(current_user)
+#     allowed_vis_set = set(allowed_vis)
+#
+#     vs = get_audio_vs()
+#     base = _absolute_base(request)
+#
+#     where: dict[str, Any] = {"visibility": {"$in": allowed_vis}}
+#     if req.audio_id:
+#         where = {"$and": [{"visibility": {"$in": allowed_vis}}, {"audio_id": req.audio_id}]}
+#
+#     fetch_k = min(max(k * 5, k), 50)
+#     try:
+#         docs_scores = vs.similarity_search_with_score(question, k=fetch_k, filter=where)
+#     except TypeError:
+#         docs_scores = vs.similarity_search_with_score(question, k=fetch_k, where=where)
+#
+#     citations: list[AudioCitation] = []
+#     seen: set[tuple[str, str, int, int]] = set()
+#     for doc, score in docs_scores:
+#         md = doc.metadata or {}
+#         audio_id = str(md.get("audio_id") or "").strip()
+#         segment_id = str(md.get("segment_id") or "").strip()
+#         if not audio_id or not segment_id:
+#             continue
+#
+#         try:
+#             start_ms = int(md.get("start_ms") or 0)
+#             end_ms = int(md.get("end_ms") or 0)
+#         except Exception:
+#             continue
+#         if start_ms < 0 or end_ms <= start_ms:
+#             continue
+#
+#         key = (audio_id, segment_id, start_ms, end_ms)
+#         if key in seen:
+#             continue
+#         seen.add(key)
+#
+#         db_doc = audio_db.get_audio_document(audio_id)
+#         if not db_doc:
+#             continue
+#         doc_vis = (db_doc.get("visibility") or "").strip().lower()
+#         if doc_vis not in allowed_vis_set:
+#             continue
+#
+#         text = (doc.page_content or "").strip()
+#         citations.append(
+#             AudioCitation(
+#                 audio_id=audio_id,
+#                 segment_id=segment_id,
+#                 start_ms=start_ms,
+#                 end_ms=end_ms,
+#                 text=text,
+#                 clip_url=_clip_url(base, audio_id, start_ms, end_ms),
+#                 score=float(score) if score is not None else None,
+#             )
+#         )
+#         if len(citations) >= k:
+#             break
+#
+#     api_key = os.getenv("DEEPSEEK_API_KEY", "")
+#     model = "deepseek-reasoner"
+#
+#
+#
+#     #todo gen() 是一个「SSE 事件生成器」：
+#     # 它把一次 RAG + LLM 推理过程，拆成一连串事件，
+#     # 按顺序、实时地 yield 给前端。
+#
+#     def gen():
+#         # meta first
+#         yield _sse(
+#             "meta",
+#             {
+#                 "question": question,
+#                 "allowed_visibilities": allowed_vis,
+#                 "citations": [c.model_dump() for c in citations],
+#             },
+#         )
+#
+#         if not citations:
+#             yield _sse("token", {"text": "没有检索到相关音频片段。"})
+#             yield _sse("done", {"ok": True})
+#             return
+#
+#         if not api_key:
+#             yield _sse(
+#                 "token",
+#                 {"text": "(未配置 DEEPSEEK_API_KEY) 只能返回 citations，无法流式生成答案。"},
+#             )
+#             yield _sse("done", {"ok": True})
+#             return
+#
+#         messages = _build_rag_messages(question, citations, req.system_prompt)
+#
+#         try:
+#             for kind, text in _deepseek_reasoner_stream(
+#                 api_key=api_key,
+#                 model="deepseek-reasoner",
+#                 messages=messages,
+#             ):
+#                 if kind == "reasoning":
+#                     yield _sse("reasoning", {"text": text})
+#                 else:
+#                     yield _sse("token", {"text": text})
+#
+#         except Exception as e:
+#             yield _sse("error", {"detail": str(e)})
+#         finally:
+#             yield _sse("done", {"ok": True})
+#
+#     return StreamingResponse(
+#         gen(),
+#         media_type="text/event-stream",
+#         headers={
+#             "Cache-Control": "no-cache",
+#             "X-Accel-Buffering": "no",  # nginx 必须
+#         },
+#     )
+#
+# #todo 这是个把 DeepSeek 的“流式生成结果”转换成你自己系统可用格式的「适配器函数」。这个函数的作用是：
+# # 调用 DeepSeek 的“流式聊天接口”，
+# # 把模型一边生成的文本，一边拆成小片段（token），
+# # 然后 yield 给你的 SSE 接口实时发给前端。
+#
+# def _deepseek_reasoner_stream(
+#     *,
+#     api_key: str,
+#     model: str,
+#     messages: list[dict],
+# ) -> Iterator[tuple[str, str]]:
+#     client = OpenAI(
+#         api_key=api_key,
+#         base_url="https://api.deepseek.com",
+#     )
+#
+#     stream = client.chat.completions.create(
+#         model=model,
+#         messages=messages,
+#         stream=True,
+#     )
+#
+#     for chunk in stream:
+#         if not chunk.choices:
+#             continue
+#
+#         delta = chunk.choices[0].delta
+#
+#         # DeepSeek 暂时不区分 reasoning / token
+#         if delta.content:
+#             yield ("token", delta.content)
+@router.post("/ask/stream")
+#todo 权限 → 检索 → 证据 → Prompt → 推理 → Streaming → 前端
+
+def ask_audio_stream(
+    req: dict,
+    request: Request,
+    current_user: UserInDB = Depends(get_current_user),
+):
+    question = (req.get("question") or "").strip()
+    audio_id = req.get("audio_id")
+    k = max(1, min(int(req.get("k") or 6), 20))
+
     if not question:
         raise HTTPException(status_code=400, detail="question is empty")
 
-    allowed_vis = _compute_allowed_visibilities(current_user)
+    allowed_vis = _get_allowed_and_check(current_user)
     allowed_vis_set = set(allowed_vis)
-
     vs = get_audio_vs()
     base = _absolute_base(request)
 
-    where: dict[str, Any] = {"visibility": {"$in": allowed_vis}}
-    if req.audio_id:
-        where = {"$and": [{"visibility": {"$in": allowed_vis}}, {"audio_id": req.audio_id}]}
+    docs_scores = _search_audio_segments(vs, question, allowed_vis, k, audio_id)
+    citations = _build_audio_hits(docs_scores, allowed_vis_set, base, mode="citation")
 
-    fetch_k = min(max(k * 5, k), 50)
-    try:
-        docs_scores = vs.similarity_search_with_score(question, k=fetch_k, filter=where)
-    except TypeError:
-        docs_scores = vs.similarity_search_with_score(question, k=fetch_k, where=where)
+    messages = _build_rag_messages(question, citations, None)
 
-    citations: list[AudioCitation] = []
-    seen: set[tuple[str, str, int, int]] = set()
-    for doc, score in docs_scores:
-        md = doc.metadata or {}
-        audio_id = str(md.get("audio_id") or "").strip()
-        segment_id = str(md.get("segment_id") or "").strip()
-        if not audio_id or not segment_id:
-            continue
+    def event_stream():
+        yield f"event: meta\ndata: { {'question': question, 'citations': [c.model_dump() for c in citations]} }\n\n"
+        for chunk in _openai_stream(messages=messages):
+            yield f"event: token\ndata: {chunk}\n\n"
+        yield "event: done\ndata: [DONE]\n\n"
 
-        try:
-            start_ms = int(md.get("start_ms") or 0)
-            end_ms = int(md.get("end_ms") or 0)
-        except Exception:
-            continue
-        if start_ms < 0 or end_ms <= start_ms:
-            continue
-
-        key = (audio_id, segment_id, start_ms, end_ms)
-        if key in seen:
-            continue
-        seen.add(key)
-
-        db_doc = audio_db.get_audio_document(audio_id)
-        if not db_doc:
-            continue
-        doc_vis = (db_doc.get("visibility") or "").strip().lower()
-        if doc_vis not in allowed_vis_set:
-            continue
-
-        text = (doc.page_content or "").strip()
-        citations.append(
-            AudioCitation(
-                audio_id=audio_id,
-                segment_id=segment_id,
-                start_ms=start_ms,
-                end_ms=end_ms,
-                text=text,
-                clip_url=_clip_url(base, audio_id, start_ms, end_ms),
-                score=float(score) if score is not None else None,
-            )
-        )
-        if len(citations) >= k:
-            break
-
-    api_key = os.getenv("DEEPSEEK_API_KEY", "")
-    model = "deepseek-reasoner"
-
-
-
-    #todo gen() 是一个「SSE 事件生成器」：
-    # 它把一次 RAG + LLM 推理过程，拆成一连串事件，
-    # 按顺序、实时地 yield 给前端。
-
-    def gen():
-        # meta first
-        yield _sse(
-            "meta",
-            {
-                "question": question,
-                "allowed_visibilities": allowed_vis,
-                "citations": [c.model_dump() for c in citations],
-            },
-        )
-
-        if not citations:
-            yield _sse("token", {"text": "没有检索到相关音频片段。"})
-            yield _sse("done", {"ok": True})
-            return
-
-        if not api_key:
-            yield _sse(
-                "token",
-                {"text": "(未配置 DEEPSEEK_API_KEY) 只能返回 citations，无法流式生成答案。"},
-            )
-            yield _sse("done", {"ok": True})
-            return
-
-        messages = _build_rag_messages(question, citations, req.system_prompt)
-
-        try:
-            for kind, text in _deepseek_reasoner_stream(
-                api_key=api_key,
-                model="deepseek-reasoner",
-                messages=messages,
-            ):
-                if kind == "reasoning":
-                    yield _sse("reasoning", {"text": text})
-                else:
-                    yield _sse("token", {"text": text})
-
-        except Exception as e:
-            yield _sse("error", {"detail": str(e)})
-        finally:
-            yield _sse("done", {"ok": True})
-
-    return StreamingResponse(
-        gen(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no",  # nginx 必须
-        },
-    )
-
-#todo 这是个把 DeepSeek 的“流式生成结果”转换成你自己系统可用格式的「适配器函数」。这个函数的作用是：
-# 调用 DeepSeek 的“流式聊天接口”，
-# 把模型一边生成的文本，一边拆成小片段（token），
-# 然后 yield 给你的 SSE 接口实时发给前端。
-
-def _deepseek_reasoner_stream(
-    *,
-    api_key: str,
-    model: str,
-    messages: list[dict],
-) -> Iterator[tuple[str, str]]:
-    client = OpenAI(
-        api_key=api_key,
-        base_url="https://api.deepseek.com",
-    )
-
-    stream = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        stream=True,
-    )
-
-    for chunk in stream:
-        if not chunk.choices:
-            continue
-
-        delta = chunk.choices[0].delta
-
-        # DeepSeek 暂时不区分 reasoning / token
-        if delta.content:
-            yield ("token", delta.content)
-
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
 
 
 
