@@ -111,9 +111,16 @@ def has_permission(*,
     return perm_code in resolved
 
 def allowed_kb_visibilities(perms: Iterable[str] | None) -> list[str]:
+    #todo 把“用户权限集合”映射成“KB 检索时允许的 visibility 列表”。
     """KB检索时，基于权限决定能看哪些visibility。"""
     p = set(perms or [])
     allowed = ["public"]
     if "kb.view_internal" in p or "kb.manage_docs" in p:
         allowed.append("internal")
     return allowed
+# allowed_kb_visibilities 是“权限 → 可检索内容”的映射器。
+# 它保证：
+# public 永远可见
+# internal 只对有权限的人可见
+# ask 永不越权
+# clip 可再次兜底校验

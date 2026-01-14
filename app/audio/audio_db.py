@@ -62,6 +62,9 @@ def replace_audio_segments(audio_id: str, segments: list[dict[str, Any]]) -> Non
 
 
 def get_audio_document(audio_id: str) -> Optional[dict[str, Any]]:
+    #todo 根据 audio_id 从 audio_documents 表中取出一条音频文档的完整元信息
+    # 如果存在 → 返回一个 dict
+    # 如果不存在 → 返回 None
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -100,6 +103,11 @@ def update_audio_indexed(audio_id: str, duration_ms: int, language: str | None, 
 
 
 def is_audio_running(audio_id: str) -> bool:
+    #todo 判断某个 audio 是否“正在被处理或已进入处理队列”
+    # is_audio_running
+    # 是你整个异步系统的“并发保险丝”
+    # 它不负责执行任务，
+    # 但它决定 “任务能不能被创建”。
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT status FROM audio_documents WHERE audio_id=%s LIMIT 1", (audio_id,))
@@ -108,6 +116,7 @@ def is_audio_running(audio_id: str) -> bool:
 
 
 def list_audio_segments(audio_id: str) -> list[dict[str, Any]]:
+    #todo “从关系型数据库中，按顺序取出某个音频的所有分段信息，根据 audio_id，从数据库里把这个音频的所有分段（segments）按顺序取出来。。”
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(

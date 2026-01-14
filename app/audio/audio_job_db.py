@@ -52,6 +52,8 @@ def update_job(job_id: str, *, status: str | None = None, progress: int | None =
 
 
 def get_job(job_id: str) -> Optional[dict]:
+#todo get_job = 从 audio_jobs 表中读取一条 job 的完整运行态信息，
+# 用于管理接口展示它是 只读、同步、强一致（当前 DB 状态） 的。
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -64,6 +66,9 @@ def get_job(job_id: str) -> Optional[dict]:
 
 
 def request_cancel(job_id: str) -> bool:
+#todo request_cancel 做的事只有一件：
+# 👉 在 DB 里给 job 打一个“请取消”的标记
+# 它不负责真正停止任务，只负责“留下一个信号”
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(

@@ -13,6 +13,7 @@ from faster_whisper import WhisperModel
 from langchain_core.documents import Document
 
 from app.audio import audio_db
+from app.es.es_audio_admin import upsert_audio_segments
 from app.workflows.deps import get_audio_vs
 
 ProgressFn = Callable[[int, str], None]
@@ -305,7 +306,9 @@ def _db_replace_segments(audio_id: str, rows: List[Dict[str, Any]]) -> None:
 
     raise AttributeError("audio_db.replace_audio_segments not found (and no fallback delete/insert found)")
 
-
+rows: List[Dict[str, Any]] = []
+docs: List[Document] = []
+ids: List[str] = []
 #run_audio_ingest_pipeline 是一个 完整的音频入库/处理流水线，它把一个原始音频文件经过 转码 → VAD → ASR → 文本合并 → 数据库写入 → 向量化 一条龙处理，最后返回处理信息。
 def run_audio_ingest_pipeline(
     *,
@@ -341,10 +344,6 @@ def run_audio_ingest_pipeline(
 
     _prog(on_progress, 88, f"chunks={len(chunks)}")
 
-    rows: List[Dict[str, Any]] = []
-    docs: List[Document] = []
-    ids: List[str] = []
-
     for i, c in enumerate(chunks):
         seg_id = f"{audio_id}:{i}"
         start_ms = int(c.start_ms)
@@ -360,6 +359,7 @@ def run_audio_ingest_pipeline(
             "text": text,
             "visibility": visibility,
         })
+
 
         meta = {
             "audio_id": audio_id,
@@ -378,6 +378,13 @@ def run_audio_ingest_pipeline(
     _prog(on_progress, 93, "write vectors")
     vs = get_audio_vs()
     _vs_add(vs, docs, ids)
+
+    _prog(on_progress, 96, "write es index")
+    try:
+        upsert_audio_segments(audio_id=audio_id, rows=rows)
+    except Exception as e:
+        # ES失败不应阻塞向量入库
+        print(f"[warn] es upsert failed: {e}")
 
     _prog(on_progress, 100, "done")
 

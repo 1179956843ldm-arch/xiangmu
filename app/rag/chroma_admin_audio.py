@@ -17,8 +17,17 @@ def get_ids_and_metadatas_by_audio_id(audio_id: str) -> tuple[list[str], list[di
 
 
 def delete_by_audio_id(audio_id: str) -> int:
+    #todo 删除向量库里
+    # audio_id == xxx
+    # 的所有记录，并返回删除条数
     col = get_audio_collection()
+    #todo get_audio_collection()
+    # → 拿到音频# segment向量所在的collection / index
     return delete_where_and_count(col, {"audio_id": audio_id})
+    #todo {"audio_id": audio_id}
+    # → 删除条件（where filter）
+    # delete_where_and_count(...)
+    # → 真正执行删除，并返回删除数量
 
 
 def update_visibility_by_audio_id(audio_id: str, visibility: str) -> int:
