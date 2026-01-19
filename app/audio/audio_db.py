@@ -45,6 +45,106 @@ def upsert_audio_document(
                     visibility, status, uploader_user_id, uploader_username, int(segment_count)
                 ),
             )
+def audio_stats() -> dict[str, Any]:
+    """
+    统计audio_documents表的数量，包括总数，按可见性分组的数量，按状态分组的数量
+    """
+    out = {"by_visibility": {}, "by_status": {}, "total": 0}
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) AS cnt FROM audio_documents")
+            out["total"] = int((cur.fetchone() or {}).get("cnt") or 0)
+
+            cur.execute("SELECT visibility, COUNT(*) AS cnt FROM audio_documents GROUP BY visibility")
+            for r in (cur.fetchall() or []):
+                out["by_visibility"][str(r["visibility"])] = int(r["cnt"])
+
+            cur.execute("SELECT status, COUNT(*) AS cnt FROM audio_documents GROUP BY status")
+            for r in (cur.fetchall() or []):
+                out["by_status"][str(r["status"])] = int(r["cnt"])
+
+    return out
+
+def list_audio_documents(
+    *,
+    q: str | None = None,
+    visibility: str | None = None,
+    status: str | None = None,
+    uploader_user_id: int | None = None,
+    page: int = 1,
+    page_size: int = 20,
+) -> tuple[int, list[dict[str, Any]]]:
+    """
+    根据可选条件查询audio_documents表，返回总数和当前页数据，实现后台分页查询
+    param q：关键字
+    param visibility：可见性
+    param status：音频处理状态
+    param uploader_user_id:上传者
+    param page：分页参数
+    param page_size：每页大小
+    """
+    page = max(1, int(page))
+    page_size = max(1, min(int(page_size), 100))
+    offset = (page - 1) * page_size                       #SQL偏移量
+
+    where = []
+    params: list[Any] = []
+
+    if q:
+        qq = f"%{q.strip()}%"
+        where.append("(audio_id LIKE %s OR original_filename LIKE %s OR uploader_username LIKE %s)")
+        params.extend([qq, qq, qq])
+
+    if visibility:
+        v = visibility.strip().lower()
+        where.append("visibility=%s")
+        params.append(v)
+
+    if status:
+        s = status.strip().lower()
+        where.append("status=%s")
+        params.append(s)
+
+    if uploader_user_id is not None:
+        where.append("uploader_user_id=%s")
+        params.append(int(uploader_user_id))
+
+    where_sql = ("WHERE " + " AND ".join(where)) if where else ""    #where + 把列表中的元素用 " AND " 拼接成一个字符串
+
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(f"SELECT COUNT(*) AS cnt FROM audio_documents {where_sql}", tuple(params))
+            total = int((cur.fetchone() or {}).get("cnt") or 0)
+
+            cur.execute(
+                "SELECT audio_id, original_filename, stored_path, duration_ms, language, visibility, status, "
+                "uploader_user_id, uploader_username, segment_count, created_at, updated_at "
+                f"FROM audio_documents {where_sql} "
+                "ORDER BY updated_at DESC, created_at DESC "
+                "LIMIT %s OFFSET %s",
+                tuple(params + [page_size, offset]),
+            )
+            items = cur.fetchall() or []
+
+    return total, items
+
+def delete_audio_segments(audio_id: str) -> int:
+    """
+    根据音频id删除音频所有的切片
+    """
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM audio_segments WHERE audio_id=%s", (audio_id,))
+            return int(cur.rowcount or 0)
+
+def delete_audio_document(audio_id: str) -> int:
+    """
+    根据音频ID删除音频
+    """
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM audio_documents WHERE audio_id=%s", (audio_id,))
+            return int(cur.rowcount or 0)
 
 
 def replace_audio_segments(audio_id: str, segments: list[dict[str, Any]]) -> None:
@@ -62,9 +162,11 @@ def replace_audio_segments(audio_id: str, segments: list[dict[str, Any]]) -> Non
 
 
 def get_audio_document(audio_id: str) -> Optional[dict[str, Any]]:
-    #todo 根据 audio_id 从 audio_documents 表中取出一条音频文档的完整元信息
-    # 如果存在 → 返回一个 dict
-    # 如果不存在 → 返回 None
+    """
+    根据 audio_id 从 audio_documents 表中取出一条音频文档的完整元信息
+    如果存在 → 返回一个 dict
+    如果不存在 → 返回 None
+    """
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -103,11 +205,10 @@ def update_audio_indexed(audio_id: str, duration_ms: int, language: str | None, 
 
 
 def is_audio_running(audio_id: str) -> bool:
-    #todo 判断某个 audio 是否“正在被处理或已进入处理队列”
-    # is_audio_running
-    # 是你整个异步系统的“并发保险丝”
-    # 它不负责执行任务，
-    # 但它决定 “任务能不能被创建”。
+    """
+    判断某个 audio 是否“正在被处理或已进入处理队列”
+    is_audio_running是你整个异步系统的“并发保险丝”它不负责执行任务，但它决定 “任务能不能被创建”。
+    """
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT status FROM audio_documents WHERE audio_id=%s LIMIT 1", (audio_id,))
@@ -116,7 +217,9 @@ def is_audio_running(audio_id: str) -> bool:
 
 
 def list_audio_segments(audio_id: str) -> list[dict[str, Any]]:
-    #todo “从关系型数据库中，按顺序取出某个音频的所有分段信息，根据 audio_id，从数据库里把这个音频的所有分段（segments）按顺序取出来。。”
+    """
+    从关系型数据库中，按顺序取出某个音频的所有分段信息，根据 audio_id，从数据库里把这个音频的所有分段（segments）按顺序取出来
+    """
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -142,6 +245,9 @@ def get_audio_transcript(audio_id: str) -> dict[str, Any]:
 
 
 def update_audio_visibility(audio_id: str, visibility: str) -> int:
+    """
+    更新音频文档可见性
+    """
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -153,6 +259,7 @@ def update_audio_visibility(audio_id: str, visibility: str) -> int:
 
 def delete_audio_document_cascade(audio_id: str) -> dict[str, int]:
     """
+    级联删除一个音频文档及其关联的数据行
     Delete DB rows for this audio_id.
     (vectors/files are handled elsewhere)
     """

@@ -7,19 +7,23 @@ from app.es.es import es_client, AUDIO_INDEX
 
 from elasticsearch import Elasticsearch, helpers
 from app.es.es import es_client, AUDIO_INDEX
-#todo 音频文件
-#    ↓
-# ASR / 切分
-#    ↓
-# audio_segments（文本片段）
-#    ↓
-# 【本文件】
-#    ├─ 写入 ES
-#    ├─ 更新 / 删除
-#    └─ 关键词搜索
-# 冷路径：不在用户实时请求链路上，对延迟不敏感，主要负责“准备数据 / 维护索引 / 管理状态”的后台或管理流程。
+"""
+    音频文件
+       ↓
+    ASR / 切分
+       ↓
+    audio_segments（文本片段）
+       ↓
+    【本文件】
+       ├─ 写入 ES
+       ├─ 更新 / 删除
+       └─ 关键词搜索
+    冷路径：不在用户实时请求链路上，对延迟不敏感，主要负责“准备数据 / 维护索引 / 管理状态”的后台或管理流程。
+"""
 def ensure_audio_index() -> None:
-    #todo ES 索引管理（兜底 / 冷路径）
+    """
+     ES 索引管理（兜底 / 冷路径）
+    """
     es = es_client()
     if es.indices.exists(index=AUDIO_INDEX):
         return
@@ -57,7 +61,7 @@ def reset_audio_index() -> None:
     ensure_audio_index()
 
 def upsert_audio_segments(*, audio_id: str, rows: list[dict[str, Any]]) -> int:
-    #todo 音频段写入 ES（Ingest 路径）
+    # 音频段写入 ES（Ingest 路径）
     """把某个音频文件的多个segments批量写入或更新到es中"""
     ensure_audio_index()
     es = es_client()
@@ -91,7 +95,9 @@ def upsert_audio_segments(*, audio_id: str, rows: list[dict[str, Any]]) -> int:
 
 
 def delete_by_audio_id(audio_id: str) -> int:
-    #todo 索引维护（删除 / 更新）
+    """
+    索引维护（删除 / 更新）
+    """
     ensure_audio_index()
     es = es_client()
     resp = es.delete_by_query(
@@ -104,7 +110,9 @@ def delete_by_audio_id(audio_id: str) -> int:
 
 
 def delete_many_audio_ids(audio_ids: Iterable[str]) -> dict[str, int]:
-    #todo 批量删除
+    """
+    批量删除
+    """
     out: dict[str, int] = {}
     for aid in audio_ids:
         aid = (aid or "").strip()
@@ -118,7 +126,9 @@ def delete_many_audio_ids(audio_ids: Iterable[str]) -> dict[str, int]:
 
 
 def update_visibility_by_audio_id(audio_id: str, visibility: str) -> int:
-    #todo 更新可见性
+    """
+    更新可见性
+    """
     ensure_audio_index()
     es = es_client()
     resp = es.update_by_query(
@@ -133,23 +143,24 @@ def update_visibility_by_audio_id(audio_id: str, visibility: str) -> int:
         conflicts="proceed",
     )
     return int(resp.get("updated") or 0)
-
-#todo 音频切分完成
-#    │
-#    ├─ upsert_audio_segments
-#    │     └─ 写入 ES（audio_segments）
-#    │
-# 用户关键词搜索
-#    │
-#    ├─ keyword_search
-#    │     ├─ text 全文匹配
-#    │     └─ visibility 过滤
-#    │
-#    └─ 返回 ESKeywordHit 列表
+"""
+音频切分完成
+   │
+   ├─ upsert_audio_segments
+   │     └─ 写入 ES（audio_segments）
+   │
+用户关键词搜索
+   │
+   ├─ keyword_search
+   │     ├─ text 全文匹配
+   │     └─ visibility 过滤
+   │
+   └─ 返回 ESKeywordHit 列表
+"""
 
 @dataclass(frozen=True)  # 初始化后不能再修改它的属性
 class ESKeywordHit:  # 这里主要存放es命中结果
-    #todo 用途：
+    # 用途：
     # 给 /audio/query
     # 给 /audio/search
     # 不直接给 LLM（RAG 用的是向量）
@@ -162,7 +173,9 @@ class ESKeywordHit:  # 这里主要存放es命中结果
     score: float
 
 def keyword_search(*, q: str, k: int, allowed_visibilities: list[str]) -> list[ESKeywordHit]:
-    #todo ES 关键词搜索（用户热路径）
+    """
+    ES 关键词搜索（用户热路径）
+    """
     ensure_audio_index()
     es = es_client()
 

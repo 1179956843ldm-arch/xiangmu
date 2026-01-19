@@ -10,9 +10,9 @@ auth_router = APIRouter(prefix="/auth", tags=["auth"])
 # ---------------- Dependencies ----------------
 
 def get_current_user(authorization: str | None = Header(default=None)) -> UserInDB:
+    #从 HTTP 请求里解析 Bearer Token，校验身份，并把“当前登录用户”解析成一个后端可用的用户对象。 current_user请求用户   Authorization → 授权 / 许可 / 批准
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Bearer token")
-
     token = authorization.split(" ", 1)[1].strip()
     try:
         payload = decode_token(token)
@@ -38,6 +38,7 @@ def get_current_user(authorization: str | None = Header(default=None)) -> UserIn
     )
 
 def get_current_user_optional(authorization: str | None = Header(default=None)) -> UserInDB | None:
+    #核心作用：允许接口 支持登录用户和匿名访问
     if not authorization:
         return None
     if not authorization.lower().startswith("bearer "):
@@ -50,7 +51,9 @@ def get_current_user_optional(authorization: str | None = Header(default=None)) 
 # ---------------- Routes ----------------
 
 @auth_router.post("/register", response_model=UserInDB)
+
 def register(req: RegisterReq):
+    # 用户注册接口
     if get_user_by_username(req.username):
         raise HTTPException(status_code=400, detail="username already exists")
     u = create_user(req)
@@ -66,6 +69,7 @@ def register(req: RegisterReq):
 
 @auth_router.post("/login", response_model=TokenResp)
 def login(req: LoginReq):
+    #登录接口
     u = get_user_by_username(req.username)
     if not u:
         raise HTTPException(status_code=401, detail="bad credentials")
@@ -82,4 +86,5 @@ def login(req: LoginReq):
 
 @auth_router.get("/me", response_model=UserInDB)
 def me(current_user: UserInDB = Depends(get_current_user)):
+    #获取当前登录用户信息接口
     return current_user

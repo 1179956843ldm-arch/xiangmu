@@ -35,33 +35,47 @@ router = APIRouter(prefix="/audio/admin", tags=["audio-admin"])
 
 
 def _require_manage_docs(user: UserInDB) -> None:
+    """
+    权限检查
+    """
     check_permission(user, "kb.manage_docs")
 
 
 def _normalize_visibility(v: str) -> str:
-    v = (v or "").strip().lower()
+    """“
+    规范化可见性字段”函数，用来确保传入的 visibility 值合法，
+    """
+    v = (v or "").strip().lower()#把字符串里的所有字母转换成小写。
     if v in ("public", "internal"):
         return v
     raise HTTPException(status_code=400, detail="visibility must be public/internal")
 
 
 @router.get("/stats", response_model=AudioStatsResp)
+
 def stats(current_user: UserInDB = Depends(get_current_user)):
+    """
+    获取音频统计信息接口
+    """
     _require_manage_docs(current_user)
     s = audio_db.audio_stats()
     return AudioStatsResp(**s)
 
 
 @router.get("/docs", response_model=AudioDocListResp)
+
 def list_docs(
-    q: Optional[str] = Query(default=None),
-    visibility: Optional[str] = Query(default=None),
-    status: Optional[str] = Query(default=None),
-    uploader_user_id: Optional[int] = Query(default=None),
-    page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=20, ge=1, le=100),
-    current_user: UserInDB = Depends(get_current_user),
+    q: Optional[str] = Query(default=None),                         #搜索关键词（可选）
+    visibility: Optional[str] = Query(default=None),                #可见性过滤（public/internal，可选）
+    status: Optional[str] = Query(default=None),                    #状态过滤（active/inactive，可选）
+    uploader_user_id: Optional[int] = Query(default=None),          #上传者 ID 过滤（可选）
+    page: int = Query(default=1, ge=1),                             #页码，默认为 1，最小值 1
+    page_size: int = Query(default=20, ge=1, le=100),               #每页大小，默认 20，范围 1~100
+    current_user: UserInDB = Depends(get_current_user),             #通过依赖注入获取当前登录用户
 ):
+    """
+    获取音频文档列表
+    """
     _require_manage_docs(current_user)
     total, items = audio_db.list_audio_documents(
         q=q,
@@ -75,16 +89,20 @@ def list_docs(
 
 
 @router.get("/docs/{audio_id}/segments", response_model=AudioSegmentsResp)
+
 def get_segments(
     audio_id: str,
     limit: int = Query(default=2000, ge=1, le=5000),
     current_user: UserInDB = Depends(get_current_user),
 ):
+    """
+    获取单个音频文档的分段信息接口
+    """
     _require_manage_docs(current_user)
     doc = audio_db.get_audio_document(audio_id)
     if not doc:
         raise HTTPException(status_code=404, detail="audio not found")
-    items = audio_db.list_audio_segments(audio_id, limit=limit)
+    items = audio_db.list_audio_segments(audio_id, limit=limit)#获取音频分段
     return AudioSegmentsResp(audio_id=audio_id, items=items)
 
 
@@ -94,6 +112,9 @@ def get_transcript(
     max_segments: int = Query(default=5000, ge=1, le=5000),
     current_user: UserInDB = Depends(get_current_user),
 ):
+    """
+    获取音频文档全文转录文本接口
+    """
     _require_manage_docs(current_user)
     doc = audio_db.get_audio_document(audio_id)
     if not doc:
@@ -108,6 +129,9 @@ def set_visibility(
     req: UpdateVisibilityReq,
     current_user: UserInDB = Depends(get_current_user),
 ):
+    """
+    修改音频文档可见性接口
+    """
     _require_manage_docs(current_user)
 
     doc = audio_db.get_audio_document(audio_id)
@@ -127,6 +151,9 @@ def bulk_delete(
     req: BulkDeleteReq,
     current_user: UserInDB = Depends(get_current_user),
 ):
+    """
+    批量删除音频文档接口
+    """
     _require_manage_docs(current_user)
 
     audio_ids = [a.strip() for a in (req.audio_ids or []) if (a or "").strip()]
@@ -156,8 +183,8 @@ def bulk_delete(
         if req.delete_files:
             try:
                 p = Path(str(doc.get("stored_path") or ""))
-                if p.exists() and p.is_file():
-                    p.unlink()
+                if p.exists() and p.is_file():                         #exists()判断当前 Path 对象对应的文件或目录是否存在       is_file()判断当前 Path 对象是否是一个 普通文件（regular file）
+                    p.unlink()                                         #删除当前 Path 对象对应的文件或符号链接（symlink）
                     files_deleted.append(aid)
             except Exception:
                 pass
@@ -175,6 +202,9 @@ def bulk_reindex(
     req: BulkReindexReq,
     current_user: UserInDB = Depends(get_current_user),
 ):
+    """
+    批量重新索引音频文档接口
+    """
     _require_manage_docs(current_user)
 
     audio_ids = [a.strip() for a in (req.audio_ids or []) if (a or "").strip()]
@@ -224,6 +254,9 @@ def reset_audio_chroma(
     confirm: str = Query(..., description="必须等于 DELETE_AUDIO_COLLECTION 才会执行"),
     current_user: UserInDB = Depends(get_current_user),
 ):
+    """
+    重置 Chroma 音频向量集合接口
+    """
     _require_manage_docs(current_user)
 
     if confirm != "DELETE_AUDIO_COLLECTION":

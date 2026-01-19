@@ -15,18 +15,20 @@ class Candidate:  # 候选片段，一个音频的一个segment，用Candidate
     end_ms: int
     text: str
 
-    vec_rank: int | None = None  # 来自向量召回的排名，1是最好
+    vec_rank: int | None = None  # 来自向量召回的排名，1是最好（向量数据库)
     es_rank: int | None = None  # 来自es关键词召回的排名
     rrf_score: float = 0.0  # RRF融合后的分数，越大越靠前
     rerank_score: float | None = None  # reranker给的最终重排分数
 
 
 def _rrf_add(score: float, rank: int, k0: int) -> float:
-    """RRF（Reciprocal Rank Fusion倒数排名融合）公式：
+    """
+    RRF（Reciprocal Rank Fusion倒数排名融合）公式：
     它是一种把多个检索器的排名结果融合在一起的办法，不直接用各自的分数，而是只看排名
 	对某个候选，如果在某个检索器里排名是rank，则加分1/(k0+rank)
 	k0越大，排名差距的影响越平滑；越小，前排优势越明显。
-	这里是把向量排名和ES排名都累加到同一个rrf_score上，实现融合。"""
+	这里是把向量排名和ES排名都累加到同一个rrf_score上，实现融合。
+	"""
     return score + 1.0 / float(k0 + rank)
 
 
@@ -41,8 +43,12 @@ def hybrid_search(
     rrf_k0: int = 60,  # RRF超参数，至少1
     min_rerank_score: float | None = None,
 ) -> list[Candidate]:
-    """ hybrid_search()里混合了三步：
-    向量检索（语义召回）+ 关键词检索（ES精确召回）+ 融合 + 重排（RRF + reranker）
+    """
+    相关度的检索
+
+
+    hybrid_search()里混合了三步：
+    向量检索（语义召回，并不是精确检索）+ 关键词检索（ES精确召回（数据库的检索），用关键词倒排索引，全文检索）+ （融合 + 重排（RRF + reranker）
     """
     k = max(1, min(int(k), 50))
     top_v = max(k, min(int(top_v), 200))
@@ -50,7 +56,7 @@ def hybrid_search(
     top_n_for_rerank = max(k, min(int(top_n_for_rerank), 200))
     rrf_k0 = max(1, int(rrf_k0))
 
-    vs = get_audio_vs()
+    vs = get_audio_vs()#拿到向量数据库
     where = {"visibility": {"$in": allowed_visibilities}}
 
     docs_scores = vs.similarity_search_with_score(q, k=top_v, filter=where)
@@ -88,6 +94,7 @@ def hybrid_search(
                 rrf_score=0.0,
             )
             merged[key] = c
+
         c.vec_rank = c.vec_rank or i
         c.rrf_score = _rrf_add(c.rrf_score, i, rrf_k0)
 
@@ -117,7 +124,7 @@ def hybrid_search(
     # RRF排序 + 截断到rerank的候选数
     candidates = sorted(merged.values(), key=lambda x: x.rrf_score, reverse=True)  # 先按融合分数rrf_score从高到低排
     candidates = candidates[:top_n_for_rerank] # 截断：只取前top_n_for_rerank条进入rerank
-
+    #核心部分完成了，已经按照rrf_score从高到低排
     texts = [c.text for c in candidates]  # 把候选的text拿出来组成列表
     scores = rerank_scores(q, texts)  # rerank_scores返回等长的分数列表
 

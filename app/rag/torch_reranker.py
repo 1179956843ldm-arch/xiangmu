@@ -40,17 +40,26 @@ def rerank_scores(query: str, texts: list[str]) -> list[float]:
             enc = tok(  # 这一段是tokenizer编码
                 [query] * len(chunk),  # 把同一个query复制成batch大小，让它与每个候选文本一一配对
                 chunk,  # 候选文本列表
-                padding=True,  # 把batch内序列padding成同长度，便于组成张量，要求张亮大小一致，想像成规则二位数组
+                padding=True,  # 把batch内序列padding成同长度，便于组成张量，要求张量大小一致，想像成规则二位数组
                 truncation=True,  # 超长就截断
                 max_length=int(getattr(settings, "audio_rerank_max_len", 512)),  # 截断的最大token长度默认512
                 return_tensors="pt",  # 返回PyTorch张量字典，通常包含input_ids和attention_mask等等
             )
             logits = model(**enc).logits  # model(**enc)把tokenizer输出的张量字典当参数喂给模型。.logits是模型原始输出分数张量
 
-            if logits.dim() == 2 and logits.size(-1) >= 1:  # 如果是二维[B, C]且C>=1
+            if logits.dim() == 2 and logits.size(-1) >= 1:  # 如果是二维[B, C]且C>=1     处理二维结果
                 s = logits[:, 0]  # 取第0列logits[:, 0]当作分数向量s
             else:
                 s = logits.view(-1)  # 否则直接view(-1)拉平成一维
 
             out.extend([float(x) for x in s.cpu().tolist()])  # s.cpu()确保张量在CPU上，然后把tensor转成float加入out
-    return out
+    return out#获得最后的结果（分数）要求是一维的
+
+
+
+text=[
+    "假期",
+    "吃饭",
+    "事假"
+]
+print(rerank_scores("事假", text))
